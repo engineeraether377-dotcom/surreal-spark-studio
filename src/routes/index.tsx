@@ -389,3 +389,95 @@ function Division({
     </Reveal>
   );
 }
+
+type Frontier = (typeof frontiers)[number];
+
+function BentoCard({
+  f,
+  variant = "small",
+  className = "",
+  delay = 0,
+}: {
+  f: Frontier;
+  variant?: "small" | "wide" | "halo" | "feature";
+  className?: string;
+  delay?: number;
+}) {
+  const isFeature = variant === "feature";
+  const isWide = variant === "wide";
+
+  return (
+    <Reveal delay={delay} className={className}>
+      <article
+        className={`group relative flex h-full flex-col overflow-hidden rounded-2xl p-[clamp(1.25rem,2.2vw,2rem)] transition-all duration-500 ${
+          isFeature
+            ? "bg-synapse text-primary-foreground shadow-[var(--shadow-lift)]"
+            : "glass hover:shadow-[var(--shadow-lift)]"
+        } ${variant === "halo" ? "ring-2 ring-synapse/45" : ""} ${
+          isWide ? "min-h-[240px] sm:min-h-[280px]" : isFeature ? "min-h-[220px]" : "min-h-[340px]"
+        }`}
+      >
+        {/* imagery */}
+        <img
+          src={f.img}
+          alt={f.alt}
+          width={640}
+          height={640}
+          loading="lazy"
+          className={
+            isWide
+              ? "pointer-events-none absolute right-0 top-0 h-full w-[46%] object-cover opacity-70 transition-transform duration-700 [mask-image:linear-gradient(to_left,black,transparent)] group-hover:scale-[1.04]"
+              : isFeature
+                ? "pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+                : "pointer-events-none absolute inset-x-0 top-0 h-[45%] w-full object-cover opacity-55 transition-transform duration-700 [mask-image:linear-gradient(to_top,transparent,black)] group-hover:scale-[1.05]"
+          }
+        />
+
+        <div className={`relative ${isWide ? "max-w-[58%]" : ""}`}>
+          <p
+            className={`t-marker ${isFeature ? "text-primary-foreground/80" : "text-synapse"}`}
+          >
+            {f.n} · {isFeature ? "Frontier" : "Frontier"}
+          </p>
+          <h3
+            className={`mt-3 font-semibold leading-[1.08] tracking-[-0.03em] ${
+              isWide
+                ? "[font-size:clamp(1.6rem,3.2vw,2.6rem)]"
+                : "[font-size:clamp(1.2rem,1.9vw,1.6rem)]"
+            } ${isFeature ? "text-primary-foreground" : "text-foreground"}`}
+          >
+            {f.title}
+          </h3>
+          <p
+            className={`mt-3 text-[0.95rem] leading-snug ${
+              isFeature ? "text-primary-foreground/90" : "text-foreground/85"
+            }`}
+          >
+            {f.claim}
+          </p>
+        </div>
+
+        <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
+          <p
+            className={`max-w-[52ch] text-[0.85rem] leading-relaxed ${
+              isFeature ? "text-primary-foreground/75" : "text-ash"
+            } ${isWide ? "" : "line-clamp-4"}`}
+          >
+            {f.body}
+          </p>
+          <span
+            aria-hidden
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-transform duration-300 group-hover:translate-x-1 ${
+              isFeature
+                ? "border-primary-foreground/50 text-primary-foreground"
+                : "border-foreground/25 text-foreground"
+            }`}
+          >
+            →
+          </span>
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
