@@ -221,7 +221,7 @@ function Index() {
         id="frontiers"
         className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]"
       >
-        <div className="mx-auto max-w-[1080px]">
+        <div className="mx-auto max-w-[1180px]">
           <Reveal>
             <h2 className="t-section text-center text-foreground">Five Frontiers</h2>
             <p className="mx-auto mt-4 max-w-[620px] text-center text-[0.95rem] text-ash">
@@ -230,32 +230,16 @@ function Index() {
             </p>
           </Reveal>
 
-          <ul className="mt-[clamp(2.5rem,5vw,4rem)] space-y-8">
-            {frontiers.map((f, i) => (
-              <Reveal as="li" key={f.n} delay={i * 80}>
-                <article className="glass grid gap-6 rounded-lg p-[clamp(1.25rem,2.5vw,2rem)] transition-shadow duration-300 hover:shadow-[var(--shadow-lift)] sm:grid-cols-[120px_minmax(0,1fr)]">
-                  <img
-                    src={f.img}
-                    alt={f.alt}
-                    width={640}
-                    height={640}
-                    loading="lazy"
-                    className="h-20 w-20 rounded-md object-cover sm:h-[120px] sm:w-[120px]"
-                  />
-                  <div className="min-w-0">
-                    <p className="t-marker text-synapse">{f.n}</p>
-                    <h3 className="mt-3 font-semibold tracking-[-0.02em] text-foreground [font-size:clamp(1.25rem,2vw,1.75rem)]">
-                      {f.title}
-                    </h3>
-                    <p className="mt-3 text-[1.05rem] leading-snug text-foreground">{f.claim}</p>
-                    <p className="mt-3 text-[0.95rem] leading-relaxed text-ash">{f.body}</p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </ul>
+          <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-4 md:grid-cols-3">
+            <BentoCard f={frontiers[0]!} variant="wide" className="md:col-span-3" />
+            <BentoCard f={frontiers[1]!} delay={80} />
+            <BentoCard f={frontiers[2]!} delay={140} variant="halo" />
+            <BentoCard f={frontiers[3]!} delay={200} />
+            <BentoCard f={frontiers[4]!} delay={260} variant="feature" className="md:col-span-3" />
+          </div>
         </div>
       </section>
+
 
       {/* ---------- The Map ---------- */}
       <section id="map" className="px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]">
