@@ -17,18 +17,15 @@ export function SiteNav() {
         scrolled ? "border-b border-border bg-paper/85 backdrop-blur-md" : "border-b border-transparent"
       }`}
     >
-      <nav className="mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-4">
-        <a href="#top" className="flex min-w-0 items-center gap-2.5">
+      <nav className="mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-3">
+        <a href="#top" aria-label="Cognivance Labs — home" className="flex min-w-0 items-center">
           <img
             src={logo.url}
             alt="Cognivance Labs mark"
-            width={28}
-            height={28}
-            className="h-7 w-7 shrink-0 object-contain"
+            width={120}
+            height={120}
+            className="h-[clamp(2.75rem,5vw,3.75rem)] w-auto shrink-0 object-contain"
           />
-          <span className="truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-foreground">
-            Cognivance Labs
-          </span>
         </a>
         <a
           href="mailto:contact@cognivancelabs.com"
@@ -37,6 +34,7 @@ export function SiteNav() {
           Contact
         </a>
       </nav>
+
     </header>
   );
 }
