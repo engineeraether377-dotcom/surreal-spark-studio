@@ -221,7 +221,7 @@ function Index() {
         id="frontiers"
         className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]"
       >
-        <div className="mx-auto max-w-[1080px]">
+        <div className="mx-auto max-w-[1180px]">
           <Reveal>
             <h2 className="t-section text-center text-foreground">Five Frontiers</h2>
             <p className="mx-auto mt-4 max-w-[620px] text-center text-[0.95rem] text-ash">
@@ -230,32 +230,16 @@ function Index() {
             </p>
           </Reveal>
 
-          <ul className="mt-[clamp(2.5rem,5vw,4rem)] space-y-8">
-            {frontiers.map((f, i) => (
-              <Reveal as="li" key={f.n} delay={i * 80}>
-                <article className="glass grid gap-6 rounded-lg p-[clamp(1.25rem,2.5vw,2rem)] transition-shadow duration-300 hover:shadow-[var(--shadow-lift)] sm:grid-cols-[120px_minmax(0,1fr)]">
-                  <img
-                    src={f.img}
-                    alt={f.alt}
-                    width={640}
-                    height={640}
-                    loading="lazy"
-                    className="h-20 w-20 rounded-md object-cover sm:h-[120px] sm:w-[120px]"
-                  />
-                  <div className="min-w-0">
-                    <p className="t-marker text-synapse">{f.n}</p>
-                    <h3 className="mt-3 font-semibold tracking-[-0.02em] text-foreground [font-size:clamp(1.25rem,2vw,1.75rem)]">
-                      {f.title}
-                    </h3>
-                    <p className="mt-3 text-[1.05rem] leading-snug text-foreground">{f.claim}</p>
-                    <p className="mt-3 text-[0.95rem] leading-relaxed text-ash">{f.body}</p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </ul>
+          <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-4 md:grid-cols-3">
+            <BentoCard f={frontiers[0]!} variant="wide" className="md:col-span-3" />
+            <BentoCard f={frontiers[1]!} delay={80} />
+            <BentoCard f={frontiers[2]!} delay={140} variant="halo" />
+            <BentoCard f={frontiers[3]!} delay={200} />
+            <BentoCard f={frontiers[4]!} delay={260} variant="feature" className="md:col-span-3" />
+          </div>
         </div>
       </section>
+
 
       {/* ---------- The Map ---------- */}
       <section id="map" className="px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]">
@@ -299,41 +283,53 @@ function Index() {
         id="team"
         className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]"
       >
-        <div className="mx-auto max-w-[860px]">
+        <div className="mx-auto max-w-[1180px]">
           <Reveal>
-            <h2 className="t-section text-center text-foreground">The Team</h2>
+            <p className="t-marker text-center text-synapse">The people</p>
+            <h2 className="t-section mt-4 text-center text-foreground">The Team</h2>
             <p className="mx-auto mt-4 max-w-[600px] text-center text-[0.95rem] text-ash">
               A small team building instruments that did not exist, for problems that were declared
               unsolvable.
             </p>
           </Reveal>
-          <ul className="mt-[clamp(2.5rem,5vw,4rem)]">
+
+          <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((m, i) => (
-              <Reveal as="li" key={m.name} delay={i * 100}>
-                <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-5 py-6">
+              <Reveal key={m.name} delay={i * 90} className={i === 0 ? "lg:col-span-2" : ""}>
+                <figure className="group relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)] transition-shadow duration-500 hover:shadow-[var(--shadow-lift)]">
                   <img
                     src={m.img}
                     alt={`${m.name}, ${m.role}`}
-                    width={160}
-                    height={160}
+                    width={1200}
+                    height={1500}
                     loading="lazy"
-                    className="h-20 w-20 shrink-0 rounded-md object-cover object-top grayscale transition-[filter] duration-500 hover:grayscale-0"
+                    className={`w-full object-cover object-top grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0 ${
+                      i === 0 ? "aspect-[4/5] lg:aspect-[16/11]" : "aspect-[4/5]"
+                    }`}
                   />
-                  <div className="min-w-0">
-                    <h3 className="font-semibold tracking-[-0.02em] text-foreground [font-size:clamp(1.25rem,2vw,1.5rem)]">
-                      {m.name}
-                    </h3>
-                    <p className="mt-1 text-[1rem] font-medium tracking-[0.02em] text-synapse">
-                      {m.role}
-                    </p>
-                  </div>
-                </div>
-                {i < team.length - 1 ? <div className="h-px w-[60%] bg-border" /> : null}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-paper via-paper/70 to-transparent" />
+                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-[clamp(1rem,2vw,1.75rem)]">
+                    <div className="min-w-0">
+                      <p className="t-marker text-synapse">{String(i + 1).padStart(2, "0")}</p>
+                      <h3
+                        className={`mt-2 font-semibold tracking-[-0.025em] text-foreground ${
+                          i === 0
+                            ? "[font-size:clamp(1.5rem,3vw,2.25rem)]"
+                            : "[font-size:clamp(1.2rem,2vw,1.5rem)]"
+                        }`}
+                      >
+                        {m.name}
+                      </h3>
+                      <p className="mt-1 text-[0.95rem] font-medium text-ash">{m.role}</p>
+                    </div>
+                  </figcaption>
+                </figure>
               </Reveal>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
+
 
       {/* ---------- Closing ---------- */}
       <section className="relative flex min-h-[80svh] items-center justify-center overflow-hidden">
@@ -393,3 +389,95 @@ function Division({
     </Reveal>
   );
 }
+
+type Frontier = (typeof frontiers)[number];
+
+function BentoCard({
+  f,
+  variant = "small",
+  className = "",
+  delay = 0,
+}: {
+  f: Frontier;
+  variant?: "small" | "wide" | "halo" | "feature";
+  className?: string;
+  delay?: number;
+}) {
+  const isFeature = variant === "feature";
+  const isWide = variant === "wide";
+
+  return (
+    <Reveal delay={delay} className={className}>
+      <article
+        className={`group relative flex h-full flex-col overflow-hidden rounded-2xl p-[clamp(1.25rem,2.2vw,2rem)] transition-all duration-500 ${
+          isFeature
+            ? "bg-synapse text-primary-foreground shadow-[var(--shadow-lift)]"
+            : "glass hover:shadow-[var(--shadow-lift)]"
+        } ${variant === "halo" ? "ring-2 ring-synapse/45" : ""} ${
+          isWide ? "min-h-[240px] sm:min-h-[280px]" : isFeature ? "min-h-[220px]" : "min-h-[340px]"
+        }`}
+      >
+        {/* imagery */}
+        <img
+          src={f.img}
+          alt={f.alt}
+          width={640}
+          height={640}
+          loading="lazy"
+          className={
+            isWide
+              ? "pointer-events-none absolute right-0 top-0 h-full w-[46%] object-cover opacity-70 transition-transform duration-700 [mask-image:linear-gradient(to_left,black,transparent)] group-hover:scale-[1.04]"
+              : isFeature
+                ? "pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+                : "pointer-events-none absolute inset-x-0 top-0 h-[45%] w-full object-cover opacity-55 transition-transform duration-700 [mask-image:linear-gradient(to_top,transparent,black)] group-hover:scale-[1.05]"
+          }
+        />
+
+        <div className={`relative ${isWide ? "max-w-[58%]" : ""}`}>
+          <p
+            className={`t-marker ${isFeature ? "text-primary-foreground/80" : "text-synapse"}`}
+          >
+            {f.n} · Frontier
+          </p>
+          <h3
+            className={`mt-3 font-semibold leading-[1.08] tracking-[-0.03em] ${
+              isWide
+                ? "[font-size:clamp(1.6rem,3.2vw,2.6rem)]"
+                : "[font-size:clamp(1.2rem,1.9vw,1.6rem)]"
+            } ${isFeature ? "text-primary-foreground" : "text-foreground"}`}
+          >
+            {f.title}
+          </h3>
+          <p
+            className={`mt-3 text-[0.95rem] leading-snug ${
+              isFeature ? "text-primary-foreground/90" : "text-foreground/85"
+            }`}
+          >
+            {f.claim}
+          </p>
+        </div>
+
+        <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
+          <p
+            className={`max-w-[52ch] text-[0.85rem] leading-relaxed ${
+              isFeature ? "text-primary-foreground/75" : "text-ash"
+            } ${isWide ? "" : "line-clamp-4"}`}
+          >
+            {f.body}
+          </p>
+          <span
+            aria-hidden
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-transform duration-300 group-hover:translate-x-1 ${
+              isFeature
+                ? "border-primary-foreground/50 text-primary-foreground"
+                : "border-foreground/25 text-foreground"
+            }`}
+          >
+            →
+          </span>
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
