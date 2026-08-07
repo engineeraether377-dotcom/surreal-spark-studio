@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/logo.png.asset.json";
+import logo from "@/assets/logo-mark.png.asset.json";
 
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);

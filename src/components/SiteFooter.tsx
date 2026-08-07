@@ -1,5 +1,5 @@
 import closing from "@/assets/closing.jpg";
-import logo from "@/assets/logo.png.asset.json";
+import logo from "@/assets/logo-mark.png.asset.json";
 
 const menu = [
   { label: "The Problem", href: "#problem" },
