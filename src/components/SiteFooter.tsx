@@ -74,9 +74,10 @@ export function SiteFooter() {
         </div>
         <div className="relative select-none px-[clamp(1rem,3vw,2.5rem)] pt-6">
           <p
-            className="bg-gradient-to-b from-foreground/85 to-foreground/10 bg-clip-text text-center font-semibold leading-[0.8] tracking-[-0.04em] text-transparent"
-            style={{ fontSize: "clamp(3.2rem, 15.5vw, 15rem)" }}
+            className="whitespace-nowrap bg-gradient-to-b from-foreground/85 to-foreground/10 bg-clip-text text-center font-semibold leading-[0.82] tracking-[-0.045em] text-transparent"
+            style={{ fontSize: "clamp(2rem, 11.8vw, 11.5rem)" }}
           >
+
             COGNIVANCE
           </p>
         </div>
