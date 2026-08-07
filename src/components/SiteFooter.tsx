@@ -16,29 +16,51 @@ const funding = ["Horizon Europe", "ERC Synergy", "SNF", "UKRI"];
 export function SiteFooter() {
   return (
     <footer className="px-[clamp(0.75rem,2.5vw,2rem)] pb-[clamp(0.75rem,2.5vw,2rem)]">
-      <div className="relative mx-auto max-w-[1440px] overflow-hidden rounded-xl border border-border shadow-[var(--shadow-lift)]">
+      <div className="relative mx-auto max-w-[1440px] overflow-hidden rounded-2xl border border-border shadow-[var(--shadow-lift)]">
         <img
           src={closing}
-          alt="Luminous interior of pale neural tissue"
+          alt=""
           width={1920}
           height={1088}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-paper/55" />
-        <div className="relative grid gap-10 px-[clamp(1.5rem,4vw,3.5rem)] pt-[clamp(2.5rem,6vw,5rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <img
-              src={logo.url}
-              alt=""
-              width={30}
-              height={30}
-              loading="lazy"
-              className="h-[30px] w-[30px] shrink-0 object-contain"
-            />
-            <span className="t-marker text-ash">An institute of neuronanotechnology</span>
+        <div className="absolute inset-0 bg-paper/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-paper/40 via-transparent to-paper/85" />
+
+        <div className="relative px-[clamp(1.25rem,4vw,3.5rem)] pt-[clamp(2.25rem,5vw,4rem)]">
+          {/* top band */}
+          <div className="grid gap-8 border-b border-foreground/12 pb-[clamp(1.75rem,4vw,3rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+            <div className="flex min-w-0 items-center gap-4">
+              <img
+                src={logo.url}
+                alt=""
+                width={120}
+                height={120}
+                loading="lazy"
+                className="h-14 w-auto shrink-0 object-contain"
+              />
+              <div className="min-w-0">
+                <p className="t-marker text-synapse">An institute of neuronanotechnology</p>
+                <p className="mt-2 max-w-[34ch] text-[0.95rem] leading-relaxed text-ash">
+                  Mapping the brain inside-out — nanorobotic systems and computational
+                  neuroscience in one engine.
+                </p>
+              </div>
+            </div>
+            <a
+              href="mailto:contact@cognivancelabs.com"
+              className="group inline-flex items-center gap-3 self-start rounded-full border border-foreground/20 bg-paper/60 px-5 py-3 text-[0.9rem] font-medium text-foreground backdrop-blur-sm transition-colors hover:border-synapse hover:text-synapse md:self-end"
+            >
+              contact@cognivancelabs.com
+              <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
+            </a>
           </div>
-          <div className="grid gap-10 sm:grid-cols-3">
+
+          {/* columns */}
+          <div className="grid gap-x-10 gap-y-8 py-[clamp(1.75rem,4vw,3rem)] sm:grid-cols-3">
             <FooterColumn title="Menu">
               {menu.map((item) => (
                 <li key={item.label}>
@@ -50,41 +72,36 @@ export function SiteFooter() {
             </FooterColumn>
             <FooterColumn title="Partnerships">
               {partners.map((p) => (
-                <li key={p} className="text-foreground/80">
+                <li key={p} className="text-foreground/75">
                   {p}
                 </li>
               ))}
             </FooterColumn>
             <FooterColumn title="Funding">
               {funding.map((f) => (
-                <li key={f} className="text-foreground/80">
+                <li key={f} className="text-foreground/75">
                   {f}
                 </li>
               ))}
-              <li className="pt-3">
-                <a
-                  href="mailto:contact@cognivancelabs.com"
-                  className="inline-flex items-center rounded-full border border-foreground/25 px-4 py-2 text-[0.85rem] text-foreground transition-colors hover:border-synapse hover:text-synapse"
-                >
-                  Send a message
-                </a>
-              </li>
             </FooterColumn>
           </div>
         </div>
-        <div className="relative select-none px-[clamp(1rem,3vw,2.5rem)] pt-6">
-          <p
-            className="whitespace-nowrap bg-gradient-to-b from-foreground/85 to-foreground/10 bg-clip-text text-center font-semibold leading-[0.82] tracking-[-0.045em] text-transparent"
-            style={{ fontSize: "clamp(2rem, 11.8vw, 11.5rem)" }}
-          >
 
+        {/* wordmark */}
+        <div className="relative select-none px-[clamp(0.75rem,2.5vw,2rem)]">
+          <p
+            className="whitespace-nowrap bg-gradient-to-b from-foreground/80 via-foreground/35 to-foreground/5 bg-clip-text text-center font-semibold leading-[0.78] tracking-[-0.05em] text-transparent"
+            style={{ fontSize: "clamp(2rem, 11.6vw, 11.5rem)" }}
+          >
             COGNIVANCE
           </p>
         </div>
       </div>
-      <div className="mx-auto mt-6 flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-[clamp(0.5rem,2vw,1.5rem)] text-[0.8rem] text-ash">
+
+      <div className="mx-auto mt-5 flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-[clamp(0.5rem,2vw,1.5rem)] text-[0.8rem] text-ash">
         <span className="font-semibold text-foreground">Cognivance Labs</span>
         <span>Neuronanotechnology · Europe</span>
+        <span>© {new Date().getFullYear()}</span>
       </div>
     </footer>
   );
@@ -93,7 +110,7 @@ export function SiteFooter() {
 function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <h3 className="t-marker border-b border-foreground/20 pb-2 text-foreground">{title}</h3>
+      <h3 className="t-marker text-ash">{title}</h3>
       <ul className="mt-4 space-y-2.5 text-[0.95rem]">{children}</ul>
     </div>
   );
