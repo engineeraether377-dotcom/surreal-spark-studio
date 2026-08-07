@@ -50,7 +50,7 @@ export function SiteFooter() {
             </div>
             <a
               href="mailto:contact@cognivancelabs.com"
-              className="group inline-flex items-center gap-3 self-start rounded-full border border-foreground/20 bg-paper/60 px-5 py-3 text-[0.9rem] font-medium text-foreground backdrop-blur-sm transition-colors hover:border-synapse hover:text-synapse md:self-end"
+              className="group inline-flex items-center gap-3 w-fit self-start rounded-full border border-foreground/20 bg-paper/60 px-5 py-3 text-[0.9rem] font-medium text-foreground backdrop-blur-sm transition-colors hover:border-synapse hover:text-synapse md:self-end"
             >
               contact@cognivancelabs.com
               <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
