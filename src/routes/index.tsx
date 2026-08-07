@@ -437,7 +437,7 @@ function BentoCard({
           <p
             className={`t-marker ${isFeature ? "text-primary-foreground/80" : "text-synapse"}`}
           >
-            {f.n} · {isFeature ? "Frontier" : "Frontier"}
+            {f.n} · Frontier
           </p>
           <h3
             className={`mt-3 font-semibold leading-[1.08] tracking-[-0.03em] ${
