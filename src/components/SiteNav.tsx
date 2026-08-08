@@ -45,7 +45,7 @@ export function SiteNav() {
             <li key={l.label}>
               <Link
                 to={l.to}
-                hash={l.hash}
+                {...(l.hash ? { hash: l.hash } : {})}
                 className="rule-link text-[0.9rem] font-medium text-ash transition-colors hover:text-foreground"
               >
                 {l.label}
@@ -88,7 +88,7 @@ export function SiteNav() {
             <li key={l.label} className="border-b border-foreground/8 last:border-0">
               <Link
                 to={l.to}
-                hash={l.hash}
+                {...(l.hash ? { hash: l.hash } : {})}
                 onClick={() => setOpen(false)}
                 className="block py-3.5 text-[1.05rem] font-medium text-foreground"
               >
