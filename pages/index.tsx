@@ -1,29 +1,33 @@
 import React from 'react';
-import HeroFix from '../src/components/improvements/HeroFix';
-import MapFix from '../src/components/improvements/MapFix';
-import TeamMember from '../src/components/improvements/TeamFix';
-
+import Head from 'next/head';
 import '../src/styles/improvements.css';
-import { asset } from '../src/utils/asset';
 
 export default function Home() {
   return (
     <main>
-      <HeroFix />
+      <Head>
+        <title>Surreal Spark Studio</title>
+      </Head>
+
+      <header style={{ display: 'flex', alignItems: 'center', padding: '1rem' }}>
+        <img src="/cognivance-logo.png" alt="logo" style={{ height: 48, marginRight: 12 }} />
+        <h1>Surreal Spark Studio</h1>
+      </header>
 
       <section style={{ padding: '2rem' }}>
-        <h2 style={{ textAlign: 'center' }}>Our Team</h2>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {/* Using your public/ filenames (case sensitive). encodeURI for spaces. */}
-          <TeamMember src="/Ansab-founder.jpeg" name="Ansab" role="Founder & CEO" />
-          <TeamMember src="/Gulfam.jpeg" name="Gulfam" role="CTO" />
-          <TeamMember src="/Hadeera.jpeg" name="Hadeera" role="Head of Research" />
-          <TeamMember src="/Muhammad Rayyan.jpeg" name="Muhammad Rayyan" role="Research Engineer" />
-          <TeamMember src="/Ruhma.jpg" name="Ruhma" role="Product" />
-        </div>
+        <img src="/hero-image.png" alt="hero" style={{ width: '100%', borderRadius: 12 }} />
       </section>
 
-      <MapFix />
+      <section style={{ padding: '2rem' }}>
+        <h2>Meet the team</h2>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <img src="/ansab-founder.jpeg" alt="Ansab" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+          <img src="/gulfam.jpeg" alt="Gulfam" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+          <img src="/hadeera.jpeg" alt="Hadeera" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+          <img src="/muhammad-rayyan.jpeg" alt="Muhammad Rayyan" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+          <img src="/ruhma.jpg" alt="Ruhma" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+        </div>
+      </section>
     </main>
   );
 }
