@@ -137,7 +137,7 @@ function Research() {
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <MRIScan label={active === "predict" ? "T1 / longitudinal" : "T1 / axial"} />
-                {active === "synaptic" ? <SynapseField /> : <Tractography bindings-key="t" bundles={active === "circuit" ? 30 : 22} />}
+                {active === "synaptic" ? <SynapseField /> : <Tractography bundles={active === "circuit" ? 30 : 22} />}
               </div>
 
               <div className="mt-4 overflow-hidden rounded-xl border border-foreground/12 bg-black">
