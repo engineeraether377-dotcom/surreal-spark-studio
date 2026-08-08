@@ -1,0 +1,52 @@
+/* Improvements stylesheet — place alongside your app's main CSS or import where appropriate */
+
+.im-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(180deg, rgba(8,6,23,1) 0%, rgba(15,9,40,1) 100%);
+  color: white;
+}
+
+.im-logo { max-width: 180px; height: auto; margin-bottom: 1rem; }
+.im-hero-title { font-size: 2.25rem; margin: 0.25rem 0 0.75rem; }
+.im-hero-sub { color: rgba(255,255,255,0.8); max-width: 40rem; }
+.im-hero-visual img { width: 100%; border-radius: 16px; box-shadow: 0 20px 50px rgba(2,6,23,0.6); }
+
+/* Team */
+.im-team-card { display: inline-block; width: 220px; text-align: center; margin: 0.5rem; }
+.im-team-image { width: 220px; height: 220px; object-fit: cover; border-radius: 14px; display: block; margin: 0 auto; box-shadow: 0 12px 30px rgba(2,6,23,0.6); transition: transform .35s ease, box-shadow .25s ease; filter: none !important; -webkit-filter: none !important; }
+.im-team-image:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
+.im-team-caption { margin-top: 0.5rem; color: #fff; }
+.im-team-role { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.72); }
+
+/* Map */
+.im-map-section { display: grid; grid-template-columns: 1fr 460px; gap: 1.5rem; align-items: center; padding: 3rem 2rem; }
+.im-map-side-card { position: relative; border-radius: 16px; overflow: visible; }
+.im-map-side-img-wrap { position: relative; }
+.im-map-side-img { width: 100%; border-radius: 16px; object-fit: cover; display: block; }
+.im-map-glow { position: absolute; inset: -8px; background: radial-gradient(closest-side, rgba(120,80,200,0.18), transparent); filter: blur(24px); pointer-events: none; }
+.im-map-overlay { position: absolute; left: 24px; bottom: 24px; color: #fff; }
+
+/* Research */
+.im-research { padding: 3rem 2rem; background: linear-gradient(180deg, rgba(250,250,252,0.02), rgba(10,8,20,0.02)); }
+.im-research-header h2 { color: #0f1724; }
+.im-research-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1.25rem; }
+.im-research-card { background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 8px 30px rgba(2,6,23,0.06); }
+.im-research-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-top: 0.75rem; }
+.im-research-notes { margin-top: 1.5rem; font-size: 0.95rem; }
+
+/* Buttons */
+.im-btn { display: inline-block; padding: 0.6rem 1rem; border-radius: 10px; text-decoration: none; }
+.im-btn.primary { background: linear-gradient(90deg,#7c3aed,#06b6d4); color: white; }
+.im-btn.ghost { border: 1px solid rgba(255,255,255,0.08); color: white; }
+.im-btn.small { padding: 0.45rem 0.7rem; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .im-hero { grid-template-columns: 1fr; padding: 2rem 1rem; }
+  .im-map-section { grid-template-columns: 1fr; }
+  .im-research-grid { grid-template-columns: 1fr; }
+}
