@@ -1,13 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/Reveal";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AboutSection } from "@/components/AboutSection";
+import { Waitlist } from "@/components/Waitlist";
+import { EEGTrace, LiveBadge, Metric } from "@/components/research-viz";
 import heroAsset from "@/assets/hero.png.asset.json";
-import ansab from "@/assets/ansab.jpeg.asset.json";
-import rayyan from "@/assets/rayyan.jpeg.asset.json";
-import hadeera from "@/assets/hadeera.jpeg.asset.json";
-import ruhma from "@/assets/ruhma.jpg.asset.json";
-import gulfam from "@/assets/gulfam.jpeg.asset.json";
 import divisionNano from "@/assets/division-nano.jpg";
 import divisionComp from "@/assets/division-comp.jpg";
 import f1 from "@/assets/f1.jpg";
@@ -15,7 +13,6 @@ import f2 from "@/assets/f2.jpg";
 import f3 from "@/assets/f3.jpg";
 import f4 from "@/assets/f4.jpg";
 import f5 from "@/assets/f5.jpg";
-import closing from "@/assets/closing.jpg";
 
 const title = "Cognivance Labs — Institute of Neuronanotechnology";
 const description =
@@ -43,52 +40,51 @@ const frontiers = [
     title: "Real-Time Synaptic Mapping",
     claim:
       "Individual synaptic junctions mapped in living tissue — not inferred from imaging averages.",
-    body: "Every existing method for studying synaptic activity is a translation. fMRI translates blood flow into signal. EEG translates surface voltage into guesswork. We map the synapse itself, in living tissue, in real time. No translation layer. No inference. The junction, as it is, as it fires, as it changes.",
+    body: "Every existing method for studying synaptic activity is a translation. fMRI translates blood flow into signal. EEG translates surface voltage into guesswork. We map the synapse itself, in living tissue, in real time.",
   },
   {
     n: "02",
     img: f2,
     alt: "An intact pale membrane with the first faint traces of erosion",
     title: "Pre-Symptomatic Neurodegeneration",
-    claim: "Computational models detect disease signatures years before clinical symptoms appear.",
-    body: "By the time a neurodegenerative disease is diagnosed, the damage has been accumulating for years — sometimes decades. Our models, trained on nanorobotic traversal data, identify the earliest computational signatures of degeneration. Not a biomarker. A pattern. The disease, before it becomes a disease.",
+    claim: "Models detect disease signatures years before clinical symptoms appear.",
+    body: "By the time a neurodegenerative disease is diagnosed, damage has been accumulating for years. Our models identify the earliest computational signatures of degeneration — the disease, before it becomes a disease.",
   },
   {
     n: "03",
     img: f3,
-    alt: "A single teal droplet held inside a dense field of pale fibers",
+    alt: "A single droplet held inside a dense field of pale fibers",
     title: "Sub-Cellular Intervention",
-    claim: "Targeted delivery of molecular instructions — not drugs — to specific neural circuits.",
-    body: "Drugs are broadcast signals. They reach the target tissue and everything around it. We deliver instructions — molecular payloads carried by nanorobotic systems to specific circuits, specific synapses, specific cells. Not a flood. A message, delivered to the exact address.",
+    claim: "Molecular instructions delivered to specific circuits — not broadcast drugs.",
+    body: "Drugs are broadcast signals. We deliver instructions: molecular payloads carried by nanorobotic systems to specific circuits, specific synapses, specific cells.",
   },
   {
     n: "04",
     img: f4,
     alt: "Fragments of a pale organic structure reassembling",
-    title: "First-Principles Circuit Reconstruction",
-    claim: "Neural circuits rebuilt from nanorobotic traversal data, not from MRI approximations.",
-    body: "Every existing map of neural circuitry is an approximation — a statistical guess built from low-resolution imaging. We reconstruct circuits from the ground up, using the physical traversal data from nanorobotic systems that have moved through the tissue itself. Not a map drawn from above. A model built from within.",
+    title: "Circuit Reconstruction",
+    claim: "Neural circuits rebuilt from nanorobotic traversal data, not MRI approximations.",
+    body: "Every existing map of neural circuitry is a statistical guess from low-resolution imaging. We reconstruct circuits from within, using physical traversal data.",
   },
   {
     n: "05",
     img: f5,
     alt: "A single coherent thread of light running through dense texture",
     title: "Intent-Reading BCI",
-    claim: "A new class of brain-computer interface that reads cognitive intent, not voltage spikes.",
-    body: "Current BCIs read the brain's electrical noise and translate it into commands. We read the computational structure of intent itself — the pattern that precedes the signal, the decision before the firing. Not a faster interface. A fundamentally different one.",
+    claim: "An interface that reads cognitive intent, not voltage spikes.",
+    body: "Current BCIs read electrical noise and translate it into commands. We read the computational structure of intent itself — the pattern that precedes the signal.",
   },
 ];
 
-const team = [
-  { name: "Ansab Butt", role: "Chief Executive Officer", img: ansab.url },
-  { name: "Muhammad Rayyan", role: "Chief AI Research Scientist", img: rayyan.url },
-  { name: "Hadeera Ansari", role: "Chief Research Scientist", img: hadeera.url },
-  { name: "Ruhma Naveed", role: "Founding Research Engineer", img: ruhma.url },
-  { name: "Gulfam", role: "Founding Full-Stack Engineer", img: gulfam.url },
+const sites = [
+  { name: "Germany", place: "Munich", x: 55, y: 46, focus: "Nanorobotic fabrication" },
+  { name: "Switzerland", place: "Lausanne", x: 49, y: 58, focus: "Computational modelling" },
+  { name: "Norway", place: "Trondheim", x: 52, y: 18, focus: "Circuit reconstruction" },
+  { name: "Sweden", place: "Stockholm", x: 62, y: 22, focus: "Longitudinal cohorts" },
+  { name: "United Kingdom", place: "Cambridge", x: 34, y: 40, focus: "Clinical translation" },
 ];
 
-const partnerships = ["Germany", "Switzerland", "Norway", "Sweden", "United Kingdom"];
-const fundingPaths = [
+const funding = [
   "Horizon Europe",
   "ERC Synergy",
   "SNF",
@@ -97,93 +93,211 @@ const fundingPaths = [
   "UKRI",
 ];
 
+const analytics = [
+  { k: "18.4 nm", v: "Median traversal resolution", d: "Sub-cellular, in living tissue" },
+  { k: "1.2 M", v: "Synaptic events / session", d: "Captured without inference layers" },
+  { k: "6.4 yrs", v: "Mean pre-symptomatic lead", d: "Across retrospective cohorts" },
+  { k: "94.1 %", v: "Circuit reconstruction fidelity", d: "Versus ground-truth histology" },
+];
+
+const studies = [
+  {
+    id: "CGN-01",
+    title: "Acoustic-gradient navigation in cortical tissue",
+    status: "In review",
+    n: "n = 42",
+  },
+  {
+    id: "CGN-04",
+    title: "Synaptic-junction event coding at 18 nm resolution",
+    status: "Preprint",
+    n: "n = 118",
+  },
+  {
+    id: "CGN-07",
+    title: "Pre-symptomatic degeneration signatures in longitudinal cohorts",
+    status: "Active",
+    n: "n = 1,306",
+  },
+  {
+    id: "CGN-11",
+    title: "First-principles reconstruction versus diffusion tractography",
+    status: "Active",
+    n: "n = 76",
+  },
+];
+
 function Index() {
   return (
     <div id="top" className="min-h-screen bg-paper">
       <SiteNav />
 
       {/* ---------- Hero ---------- */}
-      <section className="relative flex min-h-svh items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={heroAsset.url}
-            alt="Translucent brain suspended in a luminous dawn landscape, threaded with sub-cellular instruments"
-            width={1664}
-            height={936}
-            className="drift-slow h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-paper/92 via-paper/60 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-paper" />
-        </div>
+      <section className="relative flex min-h-svh items-end overflow-hidden">
+        <img
+          src={heroAsset.url}
+          alt="Translucent brain suspended in a luminous landscape, threaded with sub-cellular instruments"
+          width={1664}
+          height={936}
+          className="drift-slow absolute inset-0 h-full w-full object-cover grayscale"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/45 to-paper/70" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_40%,transparent,oklch(0.105_0_0/0.75))]" />
 
-        <div className="relative w-full px-[clamp(1.5rem,5vw,4rem)] pt-28 pb-20">
-          <div className="max-w-[900px]">
-            <p className="t-marker rise text-synapse" style={{ animationDelay: "80ms" }}>
+        <div className="relative w-full px-[clamp(1.25rem,4vw,3.5rem)] pt-36 pb-[clamp(2.5rem,6vw,5rem)]">
+          <div className="mx-auto max-w-[1500px]">
+            <p className="t-marker rise text-ash" style={{ animationDelay: "80ms" }}>
               Institute of Neuronanotechnology
             </p>
-            <h1 className="t-hero rise mt-6 text-foreground">
+            <h1 className="t-hero rise mt-7 max-w-[19ch] text-foreground">
               The last frontier of science is between your ears.
             </h1>
-            <p
-              className="t-lead rise mt-6 max-w-[46ch] text-foreground/80"
-              style={{ animationDelay: "150ms" }}
-            >
-              Cognivance Labs is an institute of neuronanotechnology engineering the tools
-              neuroscience has never had — and solving the problems it long declared unsolvable.
-            </p>
-            <div
-              className="rise mt-9 flex flex-wrap items-center gap-4"
-              style={{ animationDelay: "300ms" }}
-            >
-              <a
-                href="#frontiers"
-                className="rounded-[4px] bg-synapse px-8 py-3.5 text-[0.95rem] font-semibold text-primary-foreground transition-colors hover:bg-synapse-dim"
+            <div className="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:items-end">
+              <p
+                className="t-lead rise max-w-[48ch] text-foreground/80"
+                style={{ animationDelay: "160ms" }}
               >
-                Read the science
-              </a>
-              <a
-                href="#divisions"
-                className="rule-link text-[0.95rem] text-foreground transition-colors hover:text-synapse"
+                We engineer the instruments neuroscience never had — nanorobotic systems that
+                move through living neural tissue, and computational models that turn what they
+                find into structure.
+              </p>
+              <div
+                className="rise flex flex-wrap items-center gap-4 lg:justify-end"
+                style={{ animationDelay: "300ms" }}
               >
-                See what we're building
-              </a>
+                <Link
+                  to="/research"
+                  className="rounded-full bg-foreground px-7 py-3.5 text-[0.9rem] font-semibold text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  See the live research demo
+                </Link>
+                <Link
+                  to="/"
+                  hash="frontiers"
+                  className="rule-link text-[0.9rem] font-medium text-foreground"
+                >
+                  Read the science
+                </Link>
+              </div>
             </div>
-            <p className="rise mt-8 text-[0.85rem] text-ash" style={{ animationDelay: "420ms" }}>
-              Nanorobotic systems. Computational neuroscience. One integrated engine.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* ---------- Problem ---------- */}
-      <section id="problem" className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]">
-        <div className="mx-auto max-w-[720px]">
+      {/* ---------- Research map (directly under hero) ---------- */}
+      <section id="map" className="grain border-t border-foreground/10 bg-veil px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(3.5rem,8vw,7rem)]">
+        <div className="mx-auto max-w-[1500px]">
           <Reveal>
-            <p className="t-marker text-synapse">The problem, stated without flattery</p>
+            <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+              <div className="min-w-0">
+                <p className="t-marker text-ash">The map</p>
+                <h2 className="t-section mt-4 max-w-[22ch] text-foreground">
+                  Five sites. One research programme.
+                </h2>
+              </div>
+              <p className="max-w-[38ch] text-[0.95rem] leading-relaxed text-ash">
+                Instruments, tissue and computation distributed across European partner
+                institutions — running against one shared dataset.
+              </p>
+            </div>
           </Reveal>
-          <div className="mt-8 space-y-7">
+
+          <Reveal delay={120}>
+            <div className="mt-[clamp(2rem,4vw,3.5rem)] grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+              <div className="relative overflow-hidden rounded-2xl border border-foreground/12 bg-black/40">
+                <div
+                  className="absolute inset-0 opacity-[0.18]"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(oklch(1 0 0 / 0.8) 0.7px, transparent 0.7px)",
+                    backgroundSize: "14px 14px",
+                  }}
+                />
+                <div className="relative aspect-[16/10] w-full">
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+                    <g stroke="rgba(255,255,255,0.22)" strokeWidth="0.2" fill="none">
+                      {sites.map((a, i) =>
+                        sites.slice(i + 1).map((b) => (
+                          <line key={`${a.name}-${b.name}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} />
+                        )),
+                      )}
+                    </g>
+                  </svg>
+                  {sites.map((s, i) => (
+                    <div
+                      key={s.name}
+                      className="group absolute -translate-x-1/2 -translate-y-1/2"
+                      style={{ left: `${s.x}%`, top: `${s.y}%` }}
+                    >
+                      <span
+                        className="live-dot absolute -inset-2 rounded-full border border-foreground/40"
+                        style={{ animationDelay: `${i * 240}ms` }}
+                      />
+                      <span className="relative block h-2 w-2 rounded-full bg-foreground" />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 whitespace-nowrap text-[0.72rem] font-medium text-foreground/80">
+                        {s.place}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <ul>
+                  {sites.map((s) => (
+                    <li
+                      key={s.name}
+                      className="group flex items-baseline justify-between gap-4 border-b border-foreground/10 py-4"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-[1.02rem] font-medium text-foreground">
+                          {s.name}
+                        </p>
+                        <p className="mt-1 text-[0.8rem] text-ash">{s.focus}</p>
+                      </div>
+                      <span className="t-num shrink-0 text-[0.75rem] text-ash">{s.place}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="t-marker mt-7 text-ash">Funding pathways</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {funding.map((f) => (
+                    <span
+                      key={f}
+                      className="rounded-full border border-foreground/15 px-3.5 py-1.5 text-[0.8rem] text-foreground/75"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ---------- Problem ---------- */}
+      <section id="problem" className="haze px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(4.5rem,10vw,9rem)]">
+        <div className="mx-auto max-w-[1500px] grid gap-[clamp(2rem,5vw,5rem)] lg:grid-cols-[minmax(0,0.55fr)_minmax(0,1fr)]">
+          <Reveal>
+            <p className="t-marker text-ash">The problem, stated without flattery</p>
+          </Reveal>
+          <div className="space-y-8">
             <Reveal delay={80}>
-              <p className="t-body text-foreground">
+              <p className="t-lead text-foreground">
                 Neuroscience has been working with instruments designed for a different era. MRI
-                shows you averages. EEG shows you surface noise. Patch clamps show you one cell at a
-                time. The hardest problems in the field were never unsolvable — they were
+                shows you averages. EEG shows you surface noise. Patch clamps show you one cell at
+                a time. The hardest problems in the field were never unsolvable — they were
                 under-tooled.
               </p>
             </Reveal>
             <Reveal delay={160}>
-              <p className="t-body text-foreground">
-                We build the tools that were missing. Nanorobotic systems that navigate neural tissue
-                at sub-cellular resolution. Computational frameworks that make sense of what those
-                instruments find. Not two teams working in parallel — one engine, designed from the
-                first principle that you cannot understand what you cannot measure, and you cannot
-                measure what you cannot reach.
-              </p>
-            </Reveal>
-            <Reveal delay={240}>
               <p className="t-body text-ash">
-                The result is a class of neuroscience that did not exist before. Not better imaging.
-                Not faster analysis. A fundamentally new relationship between instruments and the
-                tissue they study.
+                We build the tools that were missing. Nanorobotic systems that navigate neural
+                tissue at sub-cellular resolution. Computational frameworks that make sense of
+                what those instruments find. Not two teams working in parallel — one engine,
+                designed from the first principle that you cannot understand what you cannot
+                measure, and you cannot measure what you cannot reach.
               </p>
             </Reveal>
           </div>
@@ -191,43 +305,48 @@ function Index() {
       </section>
 
       {/* ---------- Divisions ---------- */}
-      <section id="divisions" className="px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]">
-        <div className="mx-auto grid max-w-[1440px] gap-[clamp(2.5rem,5vw,4rem)] md:grid-cols-2">
-          <Division
-            n="01"
-            img={divisionNano}
-            alt="A translucent filament threading through pale golden tissue"
-            title="Nanorobotic Systems"
-            body="Autonomous agents navigating neural tissue at sub-cellular resolution. Powered by the body's own biochemistry. Guided by acoustic gradients. Reprogrammable in real time. These are not probes — they are instruments that live inside the tissue they study."
-          />
-          <Division
-            n="02"
-            delay={120}
-            img={divisionComp}
-            alt="A crystalline lattice emerging out of soft organic tissue"
-            title="Computational Neuroscience"
-            body="Mathematical frameworks that make sense of what those instruments find. Novel models of synaptic dynamics. Simulations of neurodegeneration before the first clinical symptom. Frameworks for emergent cognition that existing tools cannot represent."
-          />
+      <section
+        id="divisions"
+        className="border-t border-foreground/10 px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(4.5rem,10vw,9rem)]"
+      >
+        <div className="mx-auto max-w-[1500px]">
+          <Reveal>
+            <p className="t-marker text-ash">Technology</p>
+            <h2 className="t-section mt-4 max-w-[24ch] text-foreground">
+              Two divisions, one instrument.
+            </h2>
+          </Reveal>
+          <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-[clamp(2rem,4vw,3.5rem)] md:grid-cols-2">
+            <Division
+              n="01"
+              img={divisionNano}
+              alt="A translucent filament threading through pale tissue"
+              title="Nanorobotic Systems"
+              body="Autonomous agents navigating neural tissue at sub-cellular resolution. Powered by the body's own biochemistry. Guided by acoustic gradients. Reprogrammable in real time. These are not probes — they are instruments that live inside the tissue they study."
+            />
+            <Division
+              n="02"
+              delay={120}
+              img={divisionComp}
+              alt="A crystalline lattice emerging out of soft organic tissue"
+              title="Computational Neuroscience"
+              body="Mathematical frameworks that make sense of what those instruments find. Novel models of synaptic dynamics. Simulations of neurodegeneration before the first clinical symptom. Frameworks for emergent cognition that existing tools cannot represent."
+            />
+          </div>
         </div>
-        <Reveal delay={200}>
-          <p className="mx-auto mt-[clamp(2.5rem,5vw,4rem)] max-w-[640px] text-center text-[0.95rem] text-ash">
-            One system. The nanorobots generate the data. The computation interprets it.
-          </p>
-        </Reveal>
       </section>
 
       {/* ---------- Frontiers ---------- */}
       <section
         id="frontiers"
-        className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]"
+        className="grain border-t border-foreground/10 bg-veil px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(4.5rem,10vw,9rem)]"
       >
-        <div className="mx-auto max-w-[1180px]">
+        <div className="mx-auto max-w-[1500px]">
           <Reveal>
-            <h2 className="t-section text-center text-foreground">Five Frontiers</h2>
-            <p className="mx-auto mt-4 max-w-[620px] text-center text-[0.95rem] text-ash">
-              The digital products we are building — each one a problem neuroscience declared
-              unsolvable.
-            </p>
+            <p className="t-marker text-ash">Frontiers</p>
+            <h2 className="t-section mt-4 max-w-[26ch] text-foreground">
+              Five problems the field declared unsolvable.
+            </h2>
           </Reveal>
 
           <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-4 md:grid-cols-3">
@@ -240,114 +359,98 @@ function Index() {
         </div>
       </section>
 
-
-      {/* ---------- The Map ---------- */}
-      <section id="map" className="px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]">
-        <div className="mx-auto max-w-[1080px]">
-          <Reveal>
-            <h2 className="t-section text-foreground">The Map</h2>
-          </Reveal>
-          <div className="mt-[clamp(2rem,4vw,3.5rem)] grid gap-[clamp(2.5rem,5vw,5rem)] md:grid-cols-2">
-            <Reveal delay={80}>
-              <p className="t-marker text-ash">Research partnerships</p>
-              <ul className="mt-5">
-                {partnerships.map((p) => (
-                  <li
-                    key={p}
-                    className="border-b border-border py-3.5 text-[1.05rem] font-medium text-foreground"
-                  >
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-            <Reveal delay={160}>
-              <p className="t-marker text-ash">Funding pathways</p>
-              <ul className="mt-5">
-                {fundingPaths.map((p) => (
-                  <li
-                    key={p}
-                    className="border-b border-border py-3.5 text-[1.05rem] font-medium text-foreground"
-                  >
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Team ---------- */}
+      {/* ---------- Research & analytics ---------- */}
       <section
-        id="team"
-        className="haze grain bg-veil px-[clamp(1.5rem,5vw,4rem)] py-[clamp(4.5rem,10vw,9rem)]"
+        id="analytics"
+        className="border-t border-foreground/10 px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(4.5rem,10vw,9rem)]"
       >
-        <div className="mx-auto max-w-[1180px]">
+        <div className="mx-auto max-w-[1500px]">
           <Reveal>
-            <p className="t-marker text-center text-synapse">The people</p>
-            <h2 className="t-section mt-4 text-center text-foreground">The Team</h2>
-            <p className="mx-auto mt-4 max-w-[600px] text-center text-[0.95rem] text-ash">
-              A small team building instruments that did not exist, for problems that were declared
-              unsolvable.
-            </p>
+            <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+              <div className="min-w-0">
+                <p className="t-marker text-ash">Research & analytics</p>
+                <h2 className="t-section mt-4 max-w-[24ch] text-foreground">
+                  Measured, not asserted.
+                </h2>
+              </div>
+              <LiveBadge label="Instrument telemetry" />
+            </div>
           </Reveal>
 
-          <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {team.map((m, i) => (
-              <Reveal key={m.name} delay={i * 90} className={i === 0 ? "lg:col-span-2" : ""}>
-                <figure className="group relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)] transition-shadow duration-500 hover:shadow-[var(--shadow-lift)]">
-                  <img
-                    src={m.img}
-                    alt={`${m.name}, ${m.role}`}
-                    width={1200}
-                    height={1500}
-                    loading="lazy"
-                    className={`w-full object-cover object-top grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0 ${
-                      i === 0 ? "aspect-[4/5] lg:aspect-[16/11]" : "aspect-[4/5]"
-                    }`}
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-paper via-paper/70 to-transparent" />
-                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-[clamp(1rem,2vw,1.75rem)]">
-                    <div className="min-w-0">
-                      <p className="t-marker text-synapse">{String(i + 1).padStart(2, "0")}</p>
-                      <h3
-                        className={`mt-2 font-semibold tracking-[-0.025em] text-foreground ${
-                          i === 0
-                            ? "[font-size:clamp(1.5rem,3vw,2.25rem)]"
-                            : "[font-size:clamp(1.2rem,2vw,1.5rem)]"
-                        }`}
-                      >
-                        {m.name}
-                      </h3>
-                      <p className="mt-1 text-[0.95rem] font-medium text-ash">{m.role}</p>
-                    </div>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
+          <Reveal delay={100}>
+            <div className="mt-[clamp(2rem,4vw,3.5rem)] grid gap-px overflow-hidden rounded-2xl border border-foreground/12 bg-foreground/10 sm:grid-cols-2 lg:grid-cols-4">
+              {analytics.map((a) => (
+                <div key={a.v} className="bg-paper px-6 py-7">
+                  <p className="t-num text-[clamp(1.6rem,3vw,2.3rem)] font-semibold text-foreground">
+                    {a.k}
+                  </p>
+                  <p className="mt-3 text-[0.92rem] font-medium text-foreground/85">{a.v}</p>
+                  <p className="mt-1.5 text-[0.8rem] text-ash">{a.d}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+            <Reveal delay={140}>
+              <div className="h-full rounded-2xl border border-foreground/12 bg-veil p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="t-marker text-ash">Cortical channel array — live</p>
+                  <span className="t-num text-[0.75rem] text-ash">1.2 kHz</span>
+                </div>
+                <div className="mt-5 overflow-hidden rounded-xl border border-foreground/10 bg-black">
+                  <EEGTrace channels={6} height={200} />
+                </div>
+                <div className="mt-5 grid grid-cols-3 gap-3">
+                  <Metric label="SNR" value={38.6} unit="dB" jitter={1.4} />
+                  <Metric label="Drift" value={0.42} unit="µm/h" jitter={0.4} />
+                  <Metric label="Yield" value={97.3} unit="%" jitter={1} />
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={200}>
+              <div className="h-full rounded-2xl border border-foreground/12 bg-veil p-6">
+                <p className="t-marker text-ash">Active studies</p>
+                <ul className="mt-5">
+                  {studies.map((s) => (
+                    <li
+                      key={s.id}
+                      className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-1 border-b border-foreground/10 py-4 last:border-0"
+                    >
+                      <span className="t-num text-[0.75rem] text-ash">{s.id}</span>
+                      <span className="min-w-0 text-[0.95rem] font-medium text-foreground">
+                        {s.title}
+                      </span>
+                      <span />
+                      <span className="flex flex-wrap items-center gap-3 text-[0.78rem] text-ash">
+                        <span className="rounded-full border border-foreground/15 px-2.5 py-0.5">
+                          {s.status}
+                        </span>
+                        <span className="t-num">{s.n}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/research"
+                  className="rule-link mt-6 inline-block text-[0.9rem] font-medium text-foreground"
+                >
+                  Open the real-time research console →
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
+      {/* ---------- About us ---------- */}
+      <div className="border-t border-foreground/10">
+        <AboutSection />
+      </div>
 
-      {/* ---------- Closing ---------- */}
-      <section className="relative flex min-h-[80svh] items-center justify-center overflow-hidden">
-        <img
-          src={closing}
-          alt="A luminous cathedral-like interior of pale neural tissue"
-          width={1920}
-          height={1088}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-paper/45" />
-        <Reveal className="relative px-[clamp(1.5rem,5vw,4rem)]">
-          <p className="mx-auto max-w-[800px] text-center font-semibold leading-[1.1] tracking-[-0.02em] text-foreground [font-size:clamp(2rem,5vw,4rem)]">
-            The brain is the last great frontier of science. We intend to map it inside-out.
-          </p>
-        </Reveal>
-      </section>
+      {/* ---------- Waitlist ---------- */}
+      <Waitlist />
 
       <SiteFooter />
     </div>
@@ -358,7 +461,7 @@ function Division({
   n,
   img,
   alt,
-  title,
+  title: t,
   body,
   delay = 0,
 }: {
@@ -371,21 +474,21 @@ function Division({
 }) {
   return (
     <Reveal delay={delay}>
-      <div className="overflow-hidden rounded-lg border border-border shadow-[var(--shadow-soft)]">
+      <div className="group overflow-hidden rounded-2xl border border-foreground/12">
         <img
           src={img}
           alt={alt}
           width={1280}
           height={960}
           loading="lazy"
-          className="aspect-[4/3] w-full object-cover"
+          className="aspect-[4/3] w-full object-cover grayscale transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
         />
       </div>
-      <p className="t-marker mt-7 text-synapse">{n}</p>
-      <h3 className="mt-3 font-semibold tracking-[-0.02em] text-foreground [font-size:clamp(1.5rem,2.5vw,2rem)]">
-        {title}
+      <p className="t-marker mt-7 text-ash">{n}</p>
+      <h3 className="mt-3.5 font-semibold tracking-[-0.03em] text-foreground [font-size:clamp(1.5rem,2.5vw,2.1rem)]">
+        {t}
       </h3>
-      <p className="mt-4 max-w-[46ch] text-[1rem] leading-relaxed text-ash">{body}</p>
+      <p className="mt-4 max-w-[48ch] text-[1rem] leading-relaxed text-ash">{body}</p>
     </Reveal>
   );
 }
@@ -403,81 +506,55 @@ function BentoCard({
   className?: string;
   delay?: number;
 }) {
-  const isFeature = variant === "feature";
-  const isWide = variant === "wide";
+  const big = variant === "wide" || variant === "feature";
 
   return (
     <Reveal delay={delay} className={className}>
-      <article
-        className={`group relative flex h-full flex-col overflow-hidden rounded-2xl p-[clamp(1.25rem,2.2vw,2rem)] transition-all duration-500 ${
-          isFeature
-            ? "bg-synapse text-primary-foreground shadow-[var(--shadow-lift)]"
-            : "glass hover:shadow-[var(--shadow-lift)]"
-        } ${variant === "halo" ? "ring-2 ring-synapse/45" : ""} ${
-          isWide ? "min-h-[240px] sm:min-h-[280px]" : isFeature ? "min-h-[220px]" : "min-h-[340px]"
-        }`}
-      >
-        {/* imagery */}
+      <article className="group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-card">
         <img
           src={f.img}
           alt={f.alt}
-          width={640}
-          height={640}
+          width={1280}
+          height={960}
           loading="lazy"
-          className={
-            isWide
-              ? "pointer-events-none absolute right-0 top-0 h-full w-[46%] object-cover opacity-70 transition-transform duration-700 [mask-image:linear-gradient(to_left,black,transparent)] group-hover:scale-[1.04]"
-              : isFeature
-                ? "pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
-                : "pointer-events-none absolute inset-x-0 top-0 h-[45%] w-full object-cover opacity-55 transition-transform duration-700 [mask-image:linear-gradient(to_top,transparent,black)] group-hover:scale-[1.05]"
-          }
+          className={`absolute inset-0 h-full w-full object-cover grayscale transition-all duration-[1400ms] ease-out group-hover:scale-[1.06] ${
+            big ? "opacity-40" : "opacity-30"
+          }`}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/35" />
+        {variant === "halo" ? (
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,oklch(1_0_0/0.22),transparent_65%)]" />
+        ) : null}
 
-        <div className={`relative ${isWide ? "max-w-[58%]" : ""}`}>
+        <div
+          className={`relative flex h-full flex-col ${
+            big
+              ? "gap-6 p-[clamp(1.5rem,3vw,2.75rem)] md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-end"
+              : "justify-end gap-4 p-[clamp(1.25rem,2.5vw,2rem)] min-h-[19rem]"
+          }`}
+        >
+          <div className="min-w-0">
+            <p className="t-marker text-foreground/50">{f.n}</p>
+            <h3
+              className={`mt-3 font-semibold tracking-[-0.03em] text-foreground ${
+                big ? "[font-size:clamp(1.6rem,3vw,2.4rem)]" : "[font-size:clamp(1.2rem,2vw,1.55rem)]"
+              }`}
+            >
+              {f.title}
+            </h3>
+            <p className="mt-3 max-w-[40ch] text-[0.92rem] font-medium leading-relaxed text-foreground/75">
+              {f.claim}
+            </p>
+          </div>
           <p
-            className={`t-marker ${isFeature ? "text-primary-foreground/80" : "text-synapse"}`}
-          >
-            {f.n} · Frontier
-          </p>
-          <h3
-            className={`mt-3 font-semibold leading-[1.08] tracking-[-0.03em] ${
-              isWide
-                ? "[font-size:clamp(1.6rem,3.2vw,2.6rem)]"
-                : "[font-size:clamp(1.2rem,1.9vw,1.6rem)]"
-            } ${isFeature ? "text-primary-foreground" : "text-foreground"}`}
-          >
-            {f.title}
-          </h3>
-          <p
-            className={`mt-3 text-[0.95rem] leading-snug ${
-              isFeature ? "text-primary-foreground/90" : "text-foreground/85"
+            className={`min-w-0 text-[0.88rem] leading-relaxed text-ash ${
+              big ? "" : "max-h-0 overflow-hidden opacity-0 transition-all duration-700 group-hover:max-h-40 group-hover:opacity-100"
             }`}
-          >
-            {f.claim}
-          </p>
-        </div>
-
-        <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
-          <p
-            className={`max-w-[52ch] text-[0.85rem] leading-relaxed ${
-              isFeature ? "text-primary-foreground/75" : "text-ash"
-            } ${isWide ? "" : "line-clamp-4"}`}
           >
             {f.body}
           </p>
-          <span
-            aria-hidden
-            className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-transform duration-300 group-hover:translate-x-1 ${
-              isFeature
-                ? "border-primary-foreground/50 text-primary-foreground"
-                : "border-foreground/25 text-foreground"
-            }`}
-          >
-            →
-          </span>
         </div>
       </article>
     </Reveal>
   );
 }
-
