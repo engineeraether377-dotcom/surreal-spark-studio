@@ -1,6 +1,6 @@
 import React from 'react';
-import BrainViewer from '../../src/components/hud/BrainViewer';
-import '../../src/styles/improvements.css';
+import BrainViewer from '../src/components/hud/BrainViewer';
+import '../src/styles/improvements.css';
 
 export default function ResearchInteractive() {
   return (
@@ -9,7 +9,8 @@ export default function ResearchInteractive() {
         <h1>Research Interactive POC</h1>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
           <div>
-            <BrainViewer modelUrl="/models/demo-tract.glb" />
+            {/* Loading the uploaded model at /BrainStem.glb */}
+            <BrainViewer modelUrl="/BrainStem.glb" />
           </div>
           <aside>
             <div style={{ marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 8 }}>

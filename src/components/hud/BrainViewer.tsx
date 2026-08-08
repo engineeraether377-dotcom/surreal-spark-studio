@@ -1,19 +1,30 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import { OrbitControls, useGLTF, Environment, Html, useProgress } from '@react-three/drei';
 
 function Model({ url }: { url: string }) {
-  const gltf = useGLTF(url);
+  const gltf = useGLTF(url as string);
   return <primitive object={gltf.scene} dispose={null} />;
 }
 
-export default function BrainViewer({ modelUrl = '/models/demo-tract.glb' }: { modelUrl?: string }) {
+function Loader() {
+  const { progress } = useProgress();
   return (
-    <div style={{ width: '100%', height: 640, borderRadius: 12, overflow: 'hidden' }}>
+    <Html center>
+      <div style={{ color: 'white', padding: 12, background: 'rgba(0,0,0,0.6)', borderRadius: 8 }}>
+        Loading {Math.round(progress)}%
+      </div>
+    </Html>
+  );
+}
+
+export default function BrainViewer({ modelUrl = '/BrainStem.glb' }: { modelUrl?: string }) {
+  return (
+    <div style={{ width: '100%', height: 640, borderRadius: 12, overflow: 'hidden', background: '#07070a' }}>
       <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
         <ambientLight intensity={0.8} />
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        <Suspense fallback={null}>
+        <Suspense fallback={<Loader />}>
           <Model url={modelUrl} />
           <Environment preset="city" />
         </Suspense>
