@@ -4,6 +4,10 @@ import { OrbitControls, useGLTF, Environment, Html, useProgress } from '@react-t
 
 function Model({ url }: { url: string }) {
   const gltf = useGLTF(url as string);
+  // TypeScript/Next JSX config sometimes doesn't include r3f's intrinsic elements (primitive).
+  // The simplest compatibility fix is to suppress the TS error for this line — it's a valid r3f pattern.
+  // If you prefer a stricter approach, we can add project-level typings or set `jsx: "react-jsx"` in tsconfig.
+  // @ts-ignore
   return <primitive object={gltf.scene} dispose={null} />;
 }
 
