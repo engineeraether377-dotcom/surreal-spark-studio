@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../styles/improvements.css';
 import BrainViewerStub from './BrainViewerStub';
+import { asset } from '../../utils/asset';
 
 export const ResearchFix: React.FC = () => {
   return (
@@ -14,19 +15,19 @@ export const ResearchFix: React.FC = () => {
         <article className="im-research-card">
           <h3>3D fMRI Volume Rendering</h3>
           <p>Volume-rendered activation maps (HCP datasets) with animated time-series overlays.</p>
-          <img src="/hero-image.png" alt="fMRI preview" />
+          <img src={asset('/hero-image.png')} alt="fMRI preview" />
         </article>
 
         <article className="im-research-card">
           <h3>Real-time Tractography</h3>
           <p>Precomputed streamlines rendered with glowing shaders and temporal animation. Ideal for storytelling and flythroughs.</p>
-          <img src="/hero-image.png" alt="tractography preview" />
+          <img src={asset('/hero-image.png')} alt="tractography preview" />
         </article>
 
         <article className="im-research-card">
           <h3>Neural Circuit Reconstruction</h3>
           <p>Connectome graphs, node-importance overlays, and reconstructed microcircuits exported as glTF.</p>
-          <img src="/hero-image.png" alt="connectome preview" />
+          <img src={asset('/hero-image.png')} alt="connectome preview" />
         </article>
 
         <article className="im-research-card im-research-viewer">

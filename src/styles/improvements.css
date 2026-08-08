@@ -1,4 +1,4 @@
-/* Improvements stylesheet — place alongside your app's main CSS or import where appropriate */
+/* Improvements stylesheet — stronger specificity to override global grayscale filters */
 
 .im-hero {
   display: grid;
@@ -17,7 +17,9 @@
 
 /* Team */
 .im-team-card { display: inline-block; width: 220px; text-align: center; margin: 0.5rem; }
-.im-team-image { width: 220px; height: 220px; object-fit: cover; border-radius: 14px; display: block; margin: 0 auto; box-shadow: 0 12px 30px rgba(2,6,23,0.6); transition: transform .35s ease, box-shadow .25s ease; filter: none !important; -webkit-filter: none !important; }
+.im-team-image { width: 220px; height: 220px; object-fit: cover; border-radius: 14px; display: block; margin: 0 auto; box-shadow: 0 12px 30px rgba(2,6,23,0.6); transition: transform .35s ease, box-shadow .25s ease; }
+/* Stronger overrides to defeat global grayscale */
+body img.im-team-image, img.im-team-image, .im-team-card img { filter: none !important; -webkit-filter: none !important; mix-blend-mode: normal !important; opacity: 1 !important; }
 .im-team-image:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
 .im-team-caption { margin-top: 0.5rem; color: #fff; }
 .im-team-role { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.72); }

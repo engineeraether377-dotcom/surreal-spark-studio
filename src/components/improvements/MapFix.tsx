@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/improvements.css';
+import { asset } from '../../utils/asset';
 
 export const MapFix: React.FC = () => {
   return (
@@ -12,7 +13,7 @@ export const MapFix: React.FC = () => {
         <div className="im-map-side-card">
           <div className="im-map-side-img-wrap">
             {/* Use hero-image.png as the side art placeholder */}
-            <img className="im-map-side-img" src="/hero-image.png" alt="map side art" />
+            <img className="im-map-side-img" src={asset('/hero-image.png')} alt="map side art" />
             <div className="im-map-glow" />
           </div>
           <div className="im-map-overlay">
