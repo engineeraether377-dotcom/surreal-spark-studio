@@ -11,7 +11,8 @@ export const MapFix: React.FC = () => {
       <div className="im-map-right">
         <div className="im-map-side-card">
           <div className="im-map-side-img-wrap">
-            <img className="im-map-side-img" src="/images/map-side-art.png" alt="map side art" />
+            {/* Use hero-image.png as the side art placeholder */}
+            <img className="im-map-side-img" src="/hero-image.png" alt="map side art" />
             <div className="im-map-glow" />
           </div>
           <div className="im-map-overlay">

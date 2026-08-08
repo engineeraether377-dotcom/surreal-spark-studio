@@ -14,19 +14,19 @@ export const ResearchFix: React.FC = () => {
         <article className="im-research-card">
           <h3>3D fMRI Volume Rendering</h3>
           <p>Volume-rendered activation maps (HCP datasets) with animated time-series overlays.</p>
-          <img src="/images/research-fmri.jpg" alt="fMRI preview" />
+          <img src="/hero-image.png" alt="fMRI preview" />
         </article>
 
         <article className="im-research-card">
           <h3>Real-time Tractography</h3>
           <p>Precomputed streamlines rendered with glowing shaders and temporal animation. Ideal for storytelling and flythroughs.</p>
-          <img src="/images/research-tract.jpg" alt="tractography preview" />
+          <img src="/hero-image.png" alt="tractography preview" />
         </article>
 
         <article className="im-research-card">
           <h3>Neural Circuit Reconstruction</h3>
           <p>Connectome graphs, node-importance overlays, and reconstructed microcircuits exported as glTF.</p>
-          <img src="/images/research-connectome.jpg" alt="connectome preview" />
+          <img src="/hero-image.png" alt="connectome preview" />
         </article>
 
         <article className="im-research-card im-research-viewer">

@@ -13,10 +13,12 @@ export default function Home() {
       <section style={{ padding: '2rem' }}>
         <h2 style={{ textAlign: 'center' }}>Our Team</h2>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {/* Update these filenames if your public/ image names differ */}
-          <TeamMember src="/images/team-1.jpg" name="Alice Doe" role="Founder & CEO" />
-          <TeamMember src="/images/team-2.jpg" name="Bob Chan" role="CTO" />
-          <TeamMember src="/images/team-3.jpg" name="Carmen Li" role="Head of Research" />
+          {/* Using your public/ filenames (case sensitive). Spaces encoded where needed */}
+          <TeamMember src="/Ansab-founder.jpeg" name="Ansab" role="Founder & CEO" />
+          <TeamMember src="/Gulfam.jpeg" name="Gulfam" role="CTO" />
+          <TeamMember src="/Hadeera.jpeg" name="Hadeera" role="Head of Research" />
+          <TeamMember src="/Muhammad%20Rayyan.jpeg" name="Muhammad Rayyan" role="Research Engineer" />
+          <TeamMember src="/Ruhma.jpg" name="Ruhma" role="Product" />
         </div>
       </section>
 

@@ -5,7 +5,7 @@ export const HeroFix: React.FC = () => {
   return (
     <section className="im-hero">
       <div className="im-hero-left">
-        <img className="im-logo" src="/logo.svg" alt="Surreal Spark Studio" />
+        <img className="im-logo" src="/cognivance-logo.png" alt="Surreal Spark Studio" />
         <h1 className="im-hero-title">Surreal Spark Studio</h1>
         <p className="im-hero-sub">High-fidelity neurovisualizations — fMRI, tractography, and predictive analytics rendered for storytelling.</p>
         <div className="im-hero-ctas">
@@ -14,9 +14,9 @@ export const HeroFix: React.FC = () => {
         </div>
       </div>
       <div className="im-hero-right">
-        {/* Use a high-quality hero asset from public/; the project already has images */}
+        {/* Use your hero-image.png from public/ */}
         <div className="im-hero-visual">
-          <img src="/images/hero-3d-preview.jpg" alt="3D brain preview" />
+          <img src="/hero-image.png" alt="3D brain preview" />
         </div>
       </div>
     </section>
