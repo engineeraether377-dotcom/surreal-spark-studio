@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/logo-mark.png.asset.json";
 
 const links = [
   { label: "Technology", to: "/", hash: "divisions" },
@@ -32,7 +31,7 @@ export function SiteNav() {
       <nav className="mx-auto flex max-w-[1500px] items-center gap-6 px-[clamp(1.25rem,4vw,3.5rem)] py-3">
         <Link to="/" aria-label="Cognivance Labs — home" className="flex min-w-0 items-center">
           <img
-            src={logo.url}
+            src="/logo-mark.png"
             alt="Cognivance Labs mark"
             width={120}
             height={120}

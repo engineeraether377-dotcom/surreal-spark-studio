@@ -1,40 +1,35 @@
 import { Reveal } from "@/components/Reveal";
-import ansab from "@/assets/ansab.jpeg.asset.json";
-import rayyan from "@/assets/rayyan.jpeg.asset.json";
-import hadeera from "@/assets/hadeera.jpeg.asset.json";
-import ruhma from "@/assets/ruhma.jpg.asset.json";
-import gulfam from "@/assets/gulfam.jpeg.asset.json";
 
 const team = [
   {
     name: "Ansab Butt",
     role: "Chief Executive Officer",
-    img: ansab.url,
+    img: "/ansab-founder.jpeg",
     bio: "Sets the institute's research agenda and holds the line on first-principles engineering.",
   },
   {
     name: "Muhammad Rayyan",
     role: "Chief AI Research Scientist",
-    img: rayyan.url,
+    img: "/muhammad-rayyan.jpeg",
     bio: "Builds the computational models that turn traversal data into circuit-level structure.",
   },
   {
     name: "Hadeera Ansari",
     role: "Chief Research Scientist",
-    img: hadeera.url,
+    img: "/hadeera.jpeg",
     bio: "Leads the neurobiology programme and the living-tissue experimental protocols.",
+  },
+  {
+    name: "Nimra Nadeem",
+    role: "Chief Operating Officer",
+    img: "/nimra.jpeg",
+    bio: "Runs the institute's operations, partnerships and clinical-site coordination across Europe.",
   },
   {
     name: "Ruhma Naveed",
     role: "Founding Research Engineer",
-    img: ruhma.url,
+    img: "/ruhma.jpg",
     bio: "Designs the nanorobotic instrument stack, from actuation to acoustic guidance.",
-  },
-  {
-    name: "Gulfam",
-    role: "Founding Full-Stack Engineer",
-    img: gulfam.url,
-    bio: "Builds the real-time platform the instruments and models report into.",
   },
 ];
 
@@ -83,7 +78,7 @@ export function AboutSection({ heading = "About Us" }: { heading?: string }) {
         <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {team.map((m, i) => (
             <Reveal key={m.name} delay={i * 90} className={i === 0 ? "lg:col-span-2" : ""}>
-              <figure className="group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-card">
+              <figure className="scope group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-paper">
                 <img
                   src={m.img}
                   alt={`${m.name}, ${m.role}`}

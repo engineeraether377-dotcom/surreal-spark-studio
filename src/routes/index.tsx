@@ -4,8 +4,8 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AboutSection } from "@/components/AboutSection";
 import { Waitlist } from "@/components/Waitlist";
+import { NimbleSection } from "@/components/NimbleSection";
 import { EEGTrace, LiveBadge, Metric } from "@/components/research-viz";
-import heroAsset from "@/assets/hero.png.asset.json";
 import divisionNano from "@/assets/division-nano.jpg";
 import divisionComp from "@/assets/division-comp.jpg";
 import f1 from "@/assets/f1.jpg";
@@ -135,14 +135,14 @@ function Index() {
       {/* ---------- Hero ---------- */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
         <img
-          src={heroAsset.url}
+          src="/hero-image.png"
           alt="Translucent brain suspended in a luminous landscape, threaded with sub-cellular instruments"
           width={1664}
           height={936}
-          className="drift-slow absolute inset-0 h-full w-full object-cover grayscale"
+          className="drift-slow absolute inset-0 h-full w-full object-cover grayscale contrast-[1.05]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/45 to-paper/70" />
-        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_40%,transparent,oklch(0.105_0_0/0.75))]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/60 to-paper/35" />
+        <div className="absolute inset-0 bg-[radial-gradient(75%_65%_at_50%_38%,transparent,color-mix(in_oklab,var(--paper)_82%,transparent))]" />
 
         <div className="relative w-full px-[clamp(1.25rem,4vw,3.5rem)] pt-36 pb-[clamp(2.5rem,6vw,5rem)]">
           <div className="mx-auto max-w-[1500px]">
@@ -204,7 +204,7 @@ function Index() {
 
           <Reveal delay={120}>
             <div className="mt-[clamp(2rem,4vw,3.5rem)] grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-              <div className="relative overflow-hidden rounded-2xl border border-foreground/12 bg-black/40">
+              <div className="scope instrument relative overflow-hidden rounded-2xl border border-foreground/12">
                 <div
                   className="absolute inset-0 opacity-[0.18]"
                   style={{
@@ -398,7 +398,7 @@ function Index() {
                   <p className="t-marker text-ash">Cortical channel array — live</p>
                   <span className="t-num text-[0.75rem] text-ash">1.2 kHz</span>
                 </div>
-                <div className="mt-5 overflow-hidden rounded-xl border border-foreground/10 bg-black">
+                <div className="scope instrument mt-5 overflow-hidden rounded-xl border border-foreground/10">
                   <EEGTrace channels={6} height={200} />
                 </div>
                 <div className="mt-5 grid grid-cols-3 gap-3">
@@ -446,7 +446,9 @@ function Index() {
 
       {/* ---------- About us ---------- */}
       <div className="border-t border-foreground/10">
-        <AboutSection />
+        <NimbleSection />
+
+      <AboutSection />
       </div>
 
       {/* ---------- Waitlist ---------- */}
@@ -510,7 +512,7 @@ function BentoCard({
 
   return (
     <Reveal delay={delay} className={className}>
-      <article className="group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-card">
+      <article className="scope group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-paper">
         <img
           src={f.img}
           alt={f.alt}

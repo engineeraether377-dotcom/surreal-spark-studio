@@ -16,8 +16,9 @@ export function Waitlist() {
           loading="lazy"
           className="drift-slow absolute inset-0 h-full w-full object-cover opacity-45 grayscale"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/55 to-paper" />
-        <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_35%,transparent_0%,oklch(0.105_0_0/0.85)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/60 to-paper" />
+        <div className="absolute inset-0 bg-[radial-gradient(65%_55%_at_50%_35%,transparent_0%,color-mix(in_oklab,var(--paper)_88%,transparent)_100%)]" />
+
 
         <div className="relative px-[clamp(1.25rem,4vw,3.5rem)] pt-[clamp(5rem,12vw,9rem)]">
           <div className="mx-auto max-w-[760px] text-center">
