@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { BrainResearchLabV2 } from "@/components/BrainResearchLabV2";
+import { NimbleNeuralLab } from "@/components/NimbleNeuralLab";
 
-const title = "Research Console — Cognivance Labs";
+const title = "NIMBLE Research Console — Cognivance Labs";
 const description =
-  "Interactive research instrumentation for neural structure, circuit reconstruction, signal propagation and future nanorobotic navigation.";
+  "Interactive anatomical visualization and research interface for NIMBLE.";
 
 export const Route = createFileRoute("/research")({
   head: () => ({
@@ -26,7 +26,7 @@ function Research() {
     <div className="min-h-screen bg-paper">
       <SiteNav />
       <main>
-        <BrainResearchLabV2 />
+        <NimbleNeuralLab />
       </main>
       <SiteFooter />
     </div>
