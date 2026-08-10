@@ -4,19 +4,19 @@ const team = [
   {
     name: "Ansab Butt",
     role: "Chief Executive Officer",
-    img: "/ansab-founder.jpeg",
+    img: "/Ansab-founder.jpeg",
     bio: "Sets the institute's research agenda and holds the line on first-principles engineering.",
   },
   {
     name: "Muhammad Rayyan",
     role: "Chief AI Research Scientist",
-    img: "/muhammad-rayyan.jpeg",
+    img: "/Muhammad Rayyan.jpeg",
     bio: "Builds the computational models that turn traversal data into circuit-level structure.",
   },
   {
     name: "Hadeera Ansari",
     role: "Chief Research Scientist",
-    img: "/hadeera.jpeg",
+    img: "/Hadeera.jpeg",
     bio: "Leads the neurobiology programme and the living-tissue experimental protocols.",
   },
   {
@@ -28,7 +28,7 @@ const team = [
   {
     name: "Ruhma Naveed",
     role: "Founding Research Engineer",
-    img: "/ruhma.jpg",
+    img: "/Ruhma.jpg",
     bio: "Designs the nanorobotic instrument stack, from actuation to acoustic guidance.",
   },
 ];
@@ -85,7 +85,7 @@ export function AboutSection({ heading = "About Us" }: { heading?: string }) {
                   width={1200}
                   height={1500}
                   loading="lazy"
-                  className={`w-full object-cover object-top grayscale transition-all duration-[1200ms] ease-out group-hover:scale-[1.04] ${
+                  className={`w-full object-cover object-top transition-all duration-[1200ms] ease-out group-hover:scale-[1.04] ${
                     i === 0 ? "aspect-[4/5] lg:aspect-[16/11]" : "aspect-[4/5]"
                   }`}
                 />
