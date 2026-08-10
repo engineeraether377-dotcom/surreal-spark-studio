@@ -141,6 +141,7 @@ function Index() {
           height={936}
           className="drift-slow absolute inset-0 h-full w-full object-cover"
         />
+        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-paper/70 via-paper/25 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/25 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(75%_65%_at_50%_38%,transparent,color-mix(in_oklab,var(--paper)_35%,transparent))]" />
 
