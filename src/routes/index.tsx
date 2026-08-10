@@ -139,10 +139,10 @@ function Index() {
           alt="Translucent brain suspended in a luminous landscape, threaded with sub-cellular instruments"
           width={1664}
           height={936}
-          className="drift-slow absolute inset-0 h-full w-full object-cover grayscale contrast-[1.05]"
+          className="drift-slow absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/60 to-paper/35" />
-        <div className="absolute inset-0 bg-[radial-gradient(75%_65%_at_50%_38%,transparent,color-mix(in_oklab,var(--paper)_82%,transparent))]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/25 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(75%_65%_at_50%_38%,transparent,color-mix(in_oklab,var(--paper)_35%,transparent))]" />
 
         <div className="relative w-full px-[clamp(1.25rem,4vw,3.5rem)] pt-36 pb-[clamp(2.5rem,6vw,5rem)]">
           <div className="mx-auto max-w-[1500px]">
@@ -483,7 +483,7 @@ function Division({
           width={1280}
           height={960}
           loading="lazy"
-          className="aspect-[4/3] w-full object-cover grayscale transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
+          className="aspect-[4/3] w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.05]"
         />
       </div>
       <p className="t-marker mt-7 text-ash">{n}</p>
@@ -519,7 +519,7 @@ function BentoCard({
           width={1280}
           height={960}
           loading="lazy"
-          className={`absolute inset-0 h-full w-full object-cover grayscale transition-all duration-[1400ms] ease-out group-hover:scale-[1.06] ${
+          className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1400ms] ease-out group-hover:scale-[1.06] ${
             big ? "opacity-40" : "opacity-30"
           }`}
         />
