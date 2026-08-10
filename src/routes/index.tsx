@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AboutSection } from "@/components/AboutSection";
 import { Waitlist } from "@/components/Waitlist";
+import { NimbleSection } from "@/components/NimbleSection";
 import { EEGTrace, LiveBadge, Metric } from "@/components/research-viz";
 import divisionNano from "@/assets/division-nano.jpg";
 import divisionComp from "@/assets/division-comp.jpg";
@@ -445,7 +446,9 @@ function Index() {
 
       {/* ---------- About us ---------- */}
       <div className="border-t border-foreground/10">
-        <AboutSection />
+        <NimbleSection />
+
+      <AboutSection />
       </div>
 
       {/* ---------- Waitlist ---------- */}
