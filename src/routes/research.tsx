@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { BrainResearchLab } from "@/components/BrainResearchLab";
+import { BrainResearchLabV2 } from "@/components/BrainResearchLabV2";
 
 const title = "Research Console — Cognivance Labs";
 const description =
@@ -26,7 +26,7 @@ function Research() {
     <div className="min-h-screen bg-paper">
       <SiteNav />
       <main>
-        <BrainResearchLab />
+        <BrainResearchLabV2 />
       </main>
       <SiteFooter />
     </div>
