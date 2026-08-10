@@ -14,7 +14,7 @@ export function Waitlist() {
           width={1920}
           height={1088}
           loading="lazy"
-          className="drift-slow absolute inset-0 h-full w-full object-cover opacity-45 grayscale"
+          className="drift-slow absolute inset-0 h-full w-full object-cover opacity-45"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/60 to-paper" />
         <div className="absolute inset-0 bg-[radial-gradient(65%_55%_at_50%_35%,transparent_0%,color-mix(in_oklab,var(--paper)_88%,transparent)_100%)]" />
