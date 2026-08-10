@@ -83,7 +83,7 @@ export function AboutSection({ heading = "About Us" }: { heading?: string }) {
         <div className="mt-[clamp(2.5rem,5vw,4rem)] grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {team.map((m, i) => (
             <Reveal key={m.name} delay={i * 90} className={i === 0 ? "lg:col-span-2" : ""}>
-              <figure className="group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-card">
+              <figure className="scope group relative h-full overflow-hidden rounded-2xl border border-foreground/12 bg-paper">
                 <img
                   src={m.img}
                   alt={`${m.name}, ${m.role}`}

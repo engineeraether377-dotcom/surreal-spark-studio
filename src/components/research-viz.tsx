@@ -133,7 +133,7 @@ export function MRIScan({ label = "T1 / axial" }: { label?: string }) {
   const spread = (slice - 46) / 46;
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-foreground/12 bg-black">
+    <div className="relative overflow-hidden scope instrument rounded-xl border border-foreground/12">
       <svg viewBox="0 0 200 200" className="block w-full" role="img" aria-label="MRI axial slice">
         <defs>
           <radialGradient id="mriTissue" cx="50%" cy="48%" r="55%">
@@ -208,7 +208,7 @@ export function Tractography({ bundles = 26 }: { bundles?: number }) {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-foreground/12 bg-black">
+    <div className="relative overflow-hidden scope instrument rounded-xl border border-foreground/12">
       <div style={{ perspective: "900px" }}>
         <div
           style={{ transform: `rotateY(${rot}deg) rotateX(12deg)`, transformStyle: "preserve-3d" }}
@@ -251,7 +251,7 @@ export function SynapseField({ nodes = 34 }: { nodes?: number }) {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-foreground/12 bg-black">
+    <div className="relative overflow-hidden scope instrument rounded-xl border border-foreground/12">
       <svg viewBox="0 0 200 200" className="block w-full" role="img" aria-label="Live synaptic firing field">
         <g stroke="rgba(255,255,255,0.14)" strokeWidth="0.5">
           {pts.map((p, i) => {
@@ -291,7 +291,7 @@ export function RiskCurve() {
   const path = `M0 92 C 60 90, 120 ${86 - shift / 2}, 180 ${74 - shift} S 300 ${44 - shift}, 400 ${14 - shift / 2}`;
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-foreground/12 bg-black p-4">
+    <div className="relative overflow-hidden scope instrument rounded-xl border border-foreground/12 p-4">
       <svg viewBox="0 0 400 110" className="block w-full" role="img" aria-label="Pre-symptomatic risk trajectory">
         <g stroke="rgba(255,255,255,0.08)">
           {[0, 27, 54, 81, 108].map((y) => (

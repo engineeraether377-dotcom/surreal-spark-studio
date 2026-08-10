@@ -194,7 +194,6 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.55;
     background-image: radial-gradient(var(--foreground) 0.5px, transparent 0.5px);
     background-size: 3px 3px;
     mix-blend-mode: multiply;
