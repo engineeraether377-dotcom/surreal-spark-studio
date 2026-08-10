@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/logo-mark.png.asset.json";
 
 const menu = [
   { label: "Technology", to: "/", hash: "divisions" },
@@ -19,7 +18,7 @@ export function SiteFooter() {
         <div className="grid gap-10 border-b border-foreground/10 pb-[clamp(2rem,4vw,3rem)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="flex min-w-0 items-start gap-5">
             <img
-              src={logo.url}
+              src="/logo-mark.png"
               alt=""
               width={120}
               height={120}
