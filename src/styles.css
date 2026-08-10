@@ -264,7 +264,7 @@
 @utility reveal {
   opacity: 0;
   transform: translateY(28px);
-  filter: blur(6px);
+  filter: blur(2px);
   transition:
     opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 1000ms cubic-bezier(0.16, 1, 0.3, 1),
