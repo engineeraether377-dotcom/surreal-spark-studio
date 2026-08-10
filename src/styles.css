@@ -122,8 +122,9 @@
   }
 
   ::selection {
-    background: oklch(1 0 0 / 0.2);
+    background: oklch(0.165 0 0 / 0.14);
   }
+
 }
 
 /* ---------- type scale ---------- */
