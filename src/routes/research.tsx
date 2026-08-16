@@ -10,7 +10,10 @@ export const Route = createFileRoute("/research")({
 function Research() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  useEffect(() => { if (!localStorage.getItem("cognivance_session")) navigate({ to: "/auth" }); else setReady(true); }, [navigate]);
+  useEffect(() => {
+    if (!localStorage.getItem("cognivance_session")) navigate({ to: "/auth" });
+    else setReady(true);
+  }, [navigate]);
   if (!ready) return <div className="min-h-screen bg-[#020405]" />;
   return <NimbleResearchSafe />;
 }
