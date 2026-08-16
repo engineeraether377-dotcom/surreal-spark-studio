@@ -8,50 +8,48 @@ export type VolumeData = {
 
 export type VolumeOverlay = "ANATOMY" | "HEATMAP" | "TUMOR";
 
-function makeDemoVolume(size = 128): VolumeData {
-  const data = new Uint8Array(size * size * size);
-  const c = (size - 1) / 2;
-
-  for (let z = 0; z < size; z++) {
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const X = (x - c) / c;
-        const Y = (y - c) / c;
-        const Z = (z - c) / c;
-        const shell = X * X / 0.88 + Y * Y / 0.76 + Z * Z / 0.82;
-        const folds =
-          0.055 * Math.sin(Y * 34 + Z * 5) +
-          0.035 * Math.sin(Y * 57 - Z * 7) +
-          0.022 * Math.sin((Y + Z) * 74);
-        const hemi = Math.abs(X) > 0.045;
-        let v = shell < 1 + folds && hemi ? 0.08 + Math.max(0, 1 - shell) * 0.84 : 0;
-        const vent =
-          (X / 0.18) ** 2 + ((Y + 0.02) / 0.27) ** 2 + ((Z + 0.02) / 0.25) ** 2 < 1;
-        if (vent) v *= 0.12;
-        const deep = Math.exp(
-          -(X * X / 0.25 + (Y + 0.03) ** 2 / 0.25 + (Z + 0.02) ** 2 / 0.3),
-        );
-        v = Math.min(1, v + deep * 0.13);
-        data[x + size * (y + size * z)] = Math.round(v * 255);
-      }
-    }
+function percentile8(data: Uint8Array, p: number) {
+  const hist = new Uint32Array(256);
+  for (let i = 0; i < data.length; i++) hist[data[i]]++;
+  const target = Math.max(0, Math.min(data.length - 1, Math.floor(data.length * p)));
+  let acc = 0;
+  for (let i = 0; i < 256; i++) {
+    acc += hist[i];
+    if (acc > target) return i;
   }
-
-  return { data, size: [size, size, size] };
+  return 255;
 }
 
-function makeTexture(data: Uint8Array, size: [number, number, number]) {
-  const texture = new THREE.Data3DTexture(data, size[0], size[1], size[2]);
+function normalizeForRendering(data: Uint8Array) {
+  const low = percentile8(data, 0.02);
+  const high = Math.max(low + 1, percentile8(data, 0.995));
+  const out = new Uint8Array(data.length);
+  const scale = 255 / (high - low);
+  for (let i = 0; i < data.length; i++) {
+    const q = Math.max(0, Math.min(255, (data[i] - low) * scale));
+    out[i] = q < 3 ? 0 : Math.round(q);
+  }
+  return out;
+}
+
+function makeTexture(volume: VolumeData) {
+  const normalized = normalizeForRendering(volume.data);
+  const [nx, ny, nz] = volume.size;
+  const texture = new THREE.Data3DTexture(normalized, nx, ny, nz);
   texture.format = THREE.RedFormat;
   texture.type = THREE.UnsignedByteType;
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
-  texture.unpackAlignment = 1;
   texture.wrapS = THREE.ClampToEdgeWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
   texture.wrapR = THREE.ClampToEdgeWrapping;
+  texture.unpackAlignment = 1;
   texture.needsUpdate = true;
   return texture;
+}
+
+function makeEmptyMask(size: [number, number, number]) {
+  return new Uint8Array(size[0] * size[1] * size[2]);
 }
 
 const VERTEX = `#version 300 es
@@ -67,86 +65,135 @@ void main() {
 const FRAGMENT = `#version 300 es
 precision highp float;
 precision highp sampler3D;
+
 uniform sampler3D uVolume;
 uniform sampler3D uMask;
 uniform float uHasMask;
 uniform int uMode;
 uniform float uThreshold;
-uniform float uDensity;
+uniform float uOpacity;
 uniform vec3 uCamera;
+
 in vec3 vPosition;
 out vec4 outColor;
 
-vec2 intersectBox(vec3 ro, vec3 rd) {
-  vec3 boxMin = vec3(-0.5);
-  vec3 boxMax = vec3(0.5);
+vec2 rayBox(vec3 ro, vec3 rd) {
+  vec3 mn = vec3(-0.5);
+  vec3 mx = vec3(0.5);
   vec3 inv = 1.0 / rd;
-  vec3 t0 = (boxMin - ro) * inv;
-  vec3 t1 = (boxMax - ro) * inv;
-  vec3 lo = min(t0, t1);
-  vec3 hi = max(t0, t1);
+  vec3 a = (mn - ro) * inv;
+  vec3 b = (mx - ro) * inv;
+  vec3 lo = min(a, b);
+  vec3 hi = max(a, b);
   return vec2(max(max(lo.x, lo.y), lo.z), min(min(hi.x, hi.y), hi.z));
 }
 
 vec3 heat(float q) {
   q = clamp(q, 0.0, 1.0);
-  vec3 c0 = vec3(0.02, 0.08, 0.35);
-  vec3 c1 = vec3(0.00, 0.82, 1.00);
-  vec3 c2 = vec3(0.98, 0.91, 0.05);
-  vec3 c3 = vec3(1.00, 0.04, 0.02);
-  if (q < 0.33) return mix(c0, c1, q / 0.33);
-  if (q < 0.70) return mix(c1, c2, (q - 0.33) / 0.37);
-  return mix(c2, c3, (q - 0.70) / 0.30);
+  vec3 c0 = vec3(0.02, 0.03, 0.20);
+  vec3 c1 = vec3(0.00, 0.78, 1.00);
+  vec3 c2 = vec3(0.95, 0.88, 0.08);
+  vec3 c3 = vec3(1.00, 0.05, 0.015);
+  if (q < 0.34) return mix(c0, c1, q / 0.34);
+  if (q < 0.72) return mix(c1, c2, (q - 0.34) / 0.38);
+  return mix(c2, c3, (q - 0.72) / 0.28);
 }
 
 void main() {
   vec3 ro = uCamera;
   vec3 rd = normalize(vPosition - ro);
-  vec2 hit = intersectBox(ro, rd);
+  vec2 hit = rayBox(ro, rd);
   if (hit.x > hit.y) discard;
+
   float t = max(hit.x, 0.0);
   float endT = hit.y;
-  float stepSize = 0.0065;
-  vec4 accumulated = vec4(0.0);
+  float stepSize = 0.0048;
+  vec4 accum = vec4(0.0);
 
-  for (int i = 0; i < 230; i++) {
-    if (t > endT || accumulated.a > 0.985) break;
+  for (int i = 0; i < 300; i++) {
+    if (t > endT || accum.a > 0.985) break;
+
     vec3 p = ro + rd * t;
     vec3 uv = p + vec3(0.5);
     float q = texture(uVolume, uv).r;
     float mask = texture(uMask, uv).r;
-    float tissue = smoothstep(0.035, 0.12, q);
-    float edge = smoothstep(0.10, 0.30, q);
-    float interior = 1.0 - smoothstep(0.62, 0.94, q);
-    vec3 color = vec3(0.18, 0.72, 0.92);
-    float alpha = tissue * (0.035 + edge * 0.055) * uDensity;
+
+    float tissue = smoothstep(0.025, 0.085, q);
+    float shell = smoothstep(0.08, 0.32, q);
+    float core = 1.0 - smoothstep(0.58, 0.92, q);
+    float edge = smoothstep(0.10, 0.22, q) * (1.0 - smoothstep(0.55, 0.88, q));
+
+    vec3 color = vec3(0.25, 0.88, 1.0);
+    float alpha = tissue * (0.025 + shell * 0.055 + edge * 0.035) * uOpacity;
 
     if (uMode == 1) {
       color = heat(q);
-      alpha = tissue * (0.045 + q * 0.07) * uDensity;
+      alpha = tissue * (0.035 + q * 0.075) * uOpacity;
     }
 
     if (uMode == 2) {
-      float candidate = smoothstep(uThreshold, uThreshold + 0.08, q) * smoothstep(0.02, 0.10, q);
-      color = mix(vec3(0.10, 0.64, 0.90), heat(candidate), candidate);
-      alpha = tissue * 0.032 * uDensity + candidate * 0.20 * uDensity;
+      float candidate = smoothstep(uThreshold, uThreshold + 0.10, q);
+      color = mix(vec3(0.10, 0.68, 1.0), heat(candidate), candidate);
+      alpha = tissue * 0.025 * uOpacity + candidate * 0.18 * uOpacity;
     }
 
-    alpha *= mix(0.58, 1.0, interior);
+    alpha *= mix(0.70, 1.0, core);
 
     if (uHasMask > 0.5 && mask > 0.18) {
-      color = mix(color, vec3(1.0, 0.08, 0.06), 0.94);
-      alpha = max(alpha, 0.26 * uDensity);
+      color = mix(color, vec3(1.0, 0.04, 0.025), 0.94);
+      alpha = max(alpha, 0.32 * uOpacity);
     }
 
-    accumulated.rgb += (1.0 - accumulated.a) * alpha * color;
-    accumulated.a += (1.0 - accumulated.a) * alpha;
+    accum.rgb += (1.0 - accum.a) * color * alpha;
+    accum.a += (1.0 - accum.a) * alpha;
     t += stepSize;
   }
 
-  if (accumulated.a < 0.008) discard;
-  outColor = vec4(accumulated.rgb, accumulated.a);
+  if (accum.a < 0.006) discard;
+  outColor = vec4(accum.rgb, accum.a);
 }`;
+
+function drawFallback(el: HTMLDivElement, volume: VolumeData) {
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "display:block;width:100%;height:100%;background:radial-gradient(circle,#07141a,#020405)";
+  el.replaceChildren(canvas);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return () => undefined;
+  const [nx, ny, nz] = volume.size;
+  const draw = () => {
+    const w = Math.max(1, el.clientWidth);
+    const h = Math.max(1, el.clientHeight);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const size = Math.min(w, h);
+    const ox = (w - size) / 2;
+    const oy = (h - size) / 2;
+    const image = ctx.createImageData(Math.floor(size), Math.floor(size));
+    const z = Math.floor(nz * 0.5);
+    for (let py = 0; py < size; py++) {
+      for (let px = 0; px < size; px++) {
+        const x = Math.round((px / Math.max(1, size - 1)) * (nx - 1));
+        const y = Math.round((1 - py / Math.max(1, size - 1)) * (ny - 1));
+        const q = volume.data[x + nx * (y + ny * z)] / 255;
+        const tissue = Math.max(0, Math.min(1, (q - 0.02) / 0.18));
+        const p = (py * Math.floor(size) + px) * 4;
+        const g = Math.round(Math.pow(q, 0.48) * 245);
+        image.data[p] = Math.round(g * 0.55);
+        image.data[p + 1] = g;
+        image.data[p + 2] = Math.min(255, g + 20);
+        image.data[p + 3] = tissue > 0.01 ? 245 : 0;
+      }
+    }
+    ctx.clearRect(0, 0, w, h);
+    ctx.putImageData(image, ox, oy);
+  };
+  const observer = new ResizeObserver(draw);
+  observer.observe(el);
+  draw();
+  return () => observer.disconnect();
+}
 
 export function VolumeBrain({
   volume,
@@ -162,72 +209,42 @@ export function VolumeBrain({
   useEffect(() => {
     const el = host.current;
     if (!el) return;
-    const data = volume ?? makeDemoVolume();
+
+    const data = volume;
+    if (!data || data.data.length === 0) return;
 
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
     } catch {
-      return;
+      return drawFallback(el, data);
     }
 
     if (!renderer.capabilities.isWebGL2) {
       renderer.dispose();
-      const canvas = document.createElement("canvas");
-      canvas.style.cssText = "display:block;width:100%;height:100%;object-fit:contain;background:#000";
-      el.replaceChildren(canvas);
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      const [nx, ny, nz] = data.size;
-      const draw = () => {
-        const w = Math.max(1, el.clientWidth);
-        const h = Math.max(1, el.clientHeight);
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const image = ctx.createImageData(Math.floor(w), Math.floor(h));
-        const z = Math.floor(nz * 0.52);
-        for (let py = 0; py < h; py++) {
-          for (let px = 0; px < w; px++) {
-            const x = Math.round((px / Math.max(1, w - 1)) * (nx - 1));
-            const y = Math.round((1 - py / Math.max(1, h - 1)) * (ny - 1));
-            const q = data.data[x + nx * (y + ny * z)] / 255;
-            const tissue = Math.max(0, Math.min(1, (q - 0.025) / 0.18));
-            const p = (py * Math.floor(w) + px) * 4;
-            const g = Math.round(Math.pow(q, 0.58) * 255);
-            image.data[p] = g;
-            image.data[p + 1] = g;
-            image.data[p + 2] = g;
-            image.data[p + 3] = tissue > 0.01 ? 255 : 0;
-          }
-        }
-        ctx.clearRect(0, 0, w, h);
-        ctx.putImageData(image, 0, 0);
-      };
-      const observer = new ResizeObserver(draw);
-      observer.observe(el);
-      draw();
-      return () => { observer.disconnect(); el.replaceChildren(); };
+      return drawFallback(el, data);
     }
 
-    let raf = 0;
-    let alive = true;
-    let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
-
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x020405, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.cssText = "display:block;width:100%;height:100%;touch-action:none;cursor:grab";
     el.replaceChildren(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(31, 1, 0.01, 20);
-    const distance = { value: 2.35 };
-    let yaw = 0.34;
-    let pitch = -0.08;
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 20);
+    const distance = { value: 2.15 };
+    let yaw = 0.35;
+    let pitch = -0.10;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let raf = 0;
+    let alive = true;
 
     const updateCamera = () => {
       const cp = Math.cos(pitch);
@@ -241,9 +258,9 @@ export function VolumeBrain({
     };
     updateCamera();
 
-    const volumeTexture = makeTexture(data.data, data.size);
-    const emptyMask: VolumeData = { data: new Uint8Array(data.size[0] * data.size[1] * data.size[2]), size: data.size };
-    const maskTexture = makeTexture(mask?.data ?? emptyMask.data, mask?.size ?? emptyMask.size);
+    const volumeTexture = makeTexture(data);
+    const maskData = mask && mask.size.join("x") === data.size.join("x") ? mask : { data: makeEmptyMask(data.size), size: data.size };
+    const maskTexture = makeTexture(maskData);
 
     const material = new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
@@ -254,30 +271,31 @@ export function VolumeBrain({
         uMask: { value: maskTexture },
         uHasMask: { value: mask ? 1 : 0 },
         uMode: { value: mode === "HEATMAP" ? 1 : mode === "TUMOR" ? 2 : 0 },
-        uThreshold: { value: 0.72 },
-        uDensity: { value: 1.15 },
+        uThreshold: { value: 0.62 },
+        uOpacity: { value: 1.0 },
         uCamera: { value: camera.position.clone() },
       },
       transparent: true,
       side: THREE.BackSide,
       depthWrite: false,
       depthTest: true,
-      blending: THREE.AdditiveBlending,
+      blending: THREE.NormalBlending,
     });
 
-    const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-    scene.add(cube);
+    const brain = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.92, 0.92), material);
+    scene.add(brain);
 
     const frame = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(1.015, 1.015, 1.015)),
-      new THREE.LineBasicMaterial({ color: 0x6be7f7, transparent: true, opacity: 0.16 }),
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.94, 0.94, 0.94)),
+      new THREE.LineBasicMaterial({ color: 0x6be7f7, transparent: true, opacity: 0.13 }),
     );
     scene.add(frame);
 
-    const grid = new THREE.GridHelper(1.7, 16, 0x16414a, 0x092027);
-    grid.position.y = -0.61;
-    grid.material.transparent = true;
-    grid.material.opacity = 0.22;
+    const grid = new THREE.GridHelper(1.65, 18, 0x17444d, 0x0a2228);
+    grid.position.y = -0.57;
+    const gridMaterial = grid.material as THREE.Material;
+    gridMaterial.transparent = true;
+    gridMaterial.opacity = 0.20;
     scene.add(grid);
 
     const resize = () => {
@@ -287,8 +305,8 @@ export function VolumeBrain({
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
-    const observer = new ResizeObserver(resize);
-    observer.observe(el);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(el);
     resize();
 
     const down = (event: PointerEvent) => {
@@ -304,16 +322,16 @@ export function VolumeBrain({
     };
     const move = (event: PointerEvent) => {
       if (!dragging) return;
-      yaw += (event.clientX - lastX) * 0.007;
-      pitch += (event.clientY - lastY) * 0.005;
-      pitch = Math.max(-1.15, Math.min(1.15, pitch));
+      yaw += (event.clientX - lastX) * 0.006;
+      pitch += (event.clientY - lastY) * 0.0045;
+      pitch = Math.max(-1.12, Math.min(1.12, pitch));
       updateCamera();
       lastX = event.clientX;
       lastY = event.clientY;
     };
     const wheel = (event: WheelEvent) => {
       event.preventDefault();
-      distance.value = Math.max(1.45, Math.min(4.2, distance.value + event.deltaY * 0.0025));
+      distance.value = Math.max(1.35, Math.min(3.6, distance.value + event.deltaY * 0.0022));
       updateCamera();
     };
 
@@ -329,11 +347,11 @@ export function VolumeBrain({
       if (!alive) return;
       const dt = clock.getDelta();
       if (!dragging) {
-        yaw += dt * 0.045;
+        yaw += dt * 0.035;
         updateCamera();
       }
       material.uniforms.uCamera.value.copy(camera.position);
-      material.uniforms.uDensity.value = 1.10 + Math.sin(clock.elapsedTime * 1.25) * 0.035;
+      material.uniforms.uOpacity.value = 0.98 + Math.sin(clock.elapsedTime * 1.2) * 0.025;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
     };
@@ -342,7 +360,7 @@ export function VolumeBrain({
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
-      observer.disconnect();
+      resizeObserver.disconnect();
       renderer.domElement.removeEventListener("pointerdown", down);
       renderer.domElement.removeEventListener("pointerup", up);
       renderer.domElement.removeEventListener("pointercancel", up);
@@ -352,15 +370,15 @@ export function VolumeBrain({
       volumeTexture.dispose();
       maskTexture.dispose();
       material.dispose();
-      cube.geometry.dispose();
+      brain.geometry.dispose();
       frame.geometry.dispose();
       (frame.material as THREE.Material).dispose();
       grid.geometry.dispose();
-      (grid.material as THREE.Material).dispose();
+      gridMaterial.dispose();
       renderer.dispose();
       el.replaceChildren();
     };
   }, [volume, mask, mode]);
 
-  return <div ref={host} className="absolute inset-0 h-full w-full overflow-hidden" aria-label="Interactive 3D MRI volume" />;
+  return <div ref={host} className="absolute inset-0 min-h-0 min-w-0 overflow-hidden" aria-label="Interactive 3D neuroimaging volume" />;
 }
