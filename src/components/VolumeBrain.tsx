@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 export type VolumeData = {
@@ -8,10 +8,16 @@ export type VolumeData = {
 
 export type VolumeOverlay = "ANATOMY" | "HEATMAP" | "TUMOR";
 
+type Props = {
+  volume?: VolumeData;
+  mask?: VolumeData;
+  mode?: VolumeOverlay;
+};
+
 function percentile8(data: Uint8Array, p: number) {
   const hist = new Uint32Array(256);
   for (let i = 0; i < data.length; i++) hist[data[i]]++;
-  const target = Math.max(0, Math.min(data.length - 1, Math.floor(data.length * p)));
+  const target = Math.floor(data.length * p);
   let acc = 0;
   for (let i = 0; i < 256; i++) {
     acc += hist[i];
@@ -20,226 +26,138 @@ function percentile8(data: Uint8Array, p: number) {
   return 255;
 }
 
-function normalizeForRendering(data: Uint8Array) {
-  const low = percentile8(data, 0.02);
-  const high = Math.max(low + 1, percentile8(data, 0.995));
+function normalize(data: Uint8Array) {
+  const lo = percentile8(data, 0.015);
+  const hi = Math.max(lo + 1, percentile8(data, 0.995));
   const out = new Uint8Array(data.length);
-  const scale = 255 / (high - low);
   for (let i = 0; i < data.length; i++) {
-    const q = Math.max(0, Math.min(255, (data[i] - low) * scale));
+    const q = Math.max(0, Math.min(255, ((data[i] - lo) * 255) / (hi - lo)));
     out[i] = q < 3 ? 0 : Math.round(q);
   }
   return out;
 }
 
-function makeTexture(volume: VolumeData) {
-  const normalized = normalizeForRendering(volume.data);
-  const [nx, ny, nz] = volume.size;
-  const texture = new THREE.Data3DTexture(normalized, nx, ny, nz);
-  texture.format = THREE.RedFormat;
-  texture.type = THREE.UnsignedByteType;
+function heat(q: number) {
+  if (q < 0.18) return [18, 32, 110];
+  if (q < 0.45) {
+    const t = (q - 0.18) / 0.27;
+    return [18, Math.round(55 + 190 * t), Math.round(220 + 25 * t)];
+  }
+  if (q < 0.72) {
+    const t = (q - 0.45) / 0.27;
+    return [Math.round(25 + 230 * t), Math.round(245 - 105 * t), Math.round(245 - 220 * t)];
+  }
+  const t = (q - 0.72) / 0.28;
+  return [255, Math.round(140 - 105 * t), Math.round(25 - 20 * t)];
+}
+
+function makeSliceTexture(
+  normalized: Uint8Array,
+  mask: Uint8Array | undefined,
+  size: [number, number, number],
+  z: number,
+  mode: VolumeOverlay,
+) {
+  const [nx, ny, nz] = size;
+  const canvas = document.createElement("canvas");
+  const S = Math.min(192, Math.max(96, nx));
+  canvas.width = S;
+  canvas.height = S;
+  const ctx = canvas.getContext("2d", { alpha: true })!;
+  const image = ctx.createImageData(S, S);
+  const idx = (x: number, y: number) => normalized[x + nx * (y + ny * z)] / 255;
+  const mid = nz > 1 ? z / (nz - 1) : 0.5;
+
+  for (let py = 0; py < S; py++) {
+    for (let px = 0; px < S; px++) {
+      const x = Math.min(nx - 1, Math.round((px / (S - 1)) * (nx - 1)));
+      const y = Math.min(ny - 1, Math.round(((S - 1 - py) / (S - 1)) * (ny - 1)));
+      const q = idx(x, y);
+      const m = mask ? mask[x + nx * (y + ny * z)] / 255 : 0;
+      const p = (py * S + px) * 4;
+      let r = 125, g = 205, b = 225;
+      let a = 0;
+
+      // Transparent air/background; soft tissue gets a luminous volumetric density.
+      if (q > 0.035) {
+        if (mode === "HEATMAP" || mode === "TUMOR") {
+          [r, g, b] = heat(q);
+          a = Math.min(225, 20 + q * 190);
+        } else {
+          const tone = Math.round(80 + Math.pow(q, 0.48) * 170);
+          r = Math.min(255, Math.round(tone * 0.54));
+          g = Math.min(255, Math.round(tone * 0.86));
+          b = Math.min(255, tone);
+          a = Math.min(205, 10 + q * 180);
+        }
+      }
+
+      // Mask is deliberately unmistakable rather than a nearly invisible overlay.
+      if (mask && m > 0.16) {
+        r = 255;
+        g = Math.round(35 + 45 * (1 - m));
+        b = 35;
+        a = Math.max(a, 225);
+      }
+
+      // Slight anatomical depth modulation across the stack.
+      a = Math.round(a * (0.86 + 0.14 * Math.sin(mid * Math.PI)));
+      image.data[p] = r;
+      image.data[p + 1] = g;
+      image.data[p + 2] = b;
+      image.data[p + 3] = a;
+    }
+  }
+
+  ctx.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.wrapR = THREE.ClampToEdgeWrapping;
-  texture.unpackAlignment = 1;
-  texture.needsUpdate = true;
+  texture.generateMipmaps = false;
   return texture;
 }
 
-function makeEmptyMask(size: [number, number, number]) {
-  return new Uint8Array(size[0] * size[1] * size[2]);
+function makeOutline() {
+  const group = new THREE.Group();
+  const material = new THREE.LineBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.13 });
+  const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(1.05, 1.05, 0.9));
+  group.add(new THREE.LineSegments(geo, material));
+  return group;
 }
 
-const VERTEX = `#version 300 es
-in vec3 position;
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-out vec3 vPosition;
-void main() {
-  vPosition = position;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-
-const FRAGMENT = `#version 300 es
-precision highp float;
-precision highp sampler3D;
-
-uniform sampler3D uVolume;
-uniform sampler3D uMask;
-uniform float uHasMask;
-uniform int uMode;
-uniform float uThreshold;
-uniform float uOpacity;
-uniform vec3 uCamera;
-
-in vec3 vPosition;
-out vec4 outColor;
-
-vec2 rayBox(vec3 ro, vec3 rd) {
-  vec3 mn = vec3(-0.5);
-  vec3 mx = vec3(0.5);
-  vec3 inv = 1.0 / rd;
-  vec3 a = (mn - ro) * inv;
-  vec3 b = (mx - ro) * inv;
-  vec3 lo = min(a, b);
-  vec3 hi = max(a, b);
-  return vec2(max(max(lo.x, lo.y), lo.z), min(min(hi.x, hi.y), hi.z));
-}
-
-vec3 heat(float q) {
-  q = clamp(q, 0.0, 1.0);
-  vec3 c0 = vec3(0.02, 0.03, 0.20);
-  vec3 c1 = vec3(0.00, 0.78, 1.00);
-  vec3 c2 = vec3(0.95, 0.88, 0.08);
-  vec3 c3 = vec3(1.00, 0.05, 0.015);
-  if (q < 0.34) return mix(c0, c1, q / 0.34);
-  if (q < 0.72) return mix(c1, c2, (q - 0.34) / 0.38);
-  return mix(c2, c3, (q - 0.72) / 0.28);
-}
-
-void main() {
-  vec3 ro = uCamera;
-  vec3 rd = normalize(vPosition - ro);
-  vec2 hit = rayBox(ro, rd);
-  if (hit.x > hit.y) discard;
-
-  float t = max(hit.x, 0.0);
-  float endT = hit.y;
-  float stepSize = 0.0048;
-  vec4 accum = vec4(0.0);
-
-  for (int i = 0; i < 300; i++) {
-    if (t > endT || accum.a > 0.985) break;
-
-    vec3 p = ro + rd * t;
-    vec3 uv = p + vec3(0.5);
-    float q = texture(uVolume, uv).r;
-    float mask = texture(uMask, uv).r;
-
-    float tissue = smoothstep(0.025, 0.085, q);
-    float shell = smoothstep(0.08, 0.32, q);
-    float core = 1.0 - smoothstep(0.58, 0.92, q);
-    float edge = smoothstep(0.10, 0.22, q) * (1.0 - smoothstep(0.55, 0.88, q));
-
-    vec3 color = vec3(0.25, 0.88, 1.0);
-    float alpha = tissue * (0.025 + shell * 0.055 + edge * 0.035) * uOpacity;
-
-    if (uMode == 1) {
-      color = heat(q);
-      alpha = tissue * (0.035 + q * 0.075) * uOpacity;
-    }
-
-    if (uMode == 2) {
-      float candidate = smoothstep(uThreshold, uThreshold + 0.10, q);
-      color = mix(vec3(0.10, 0.68, 1.0), heat(candidate), candidate);
-      alpha = tissue * 0.025 * uOpacity + candidate * 0.18 * uOpacity;
-    }
-
-    alpha *= mix(0.70, 1.0, core);
-
-    if (uHasMask > 0.5 && mask > 0.18) {
-      color = mix(color, vec3(1.0, 0.04, 0.025), 0.94);
-      alpha = max(alpha, 0.32 * uOpacity);
-    }
-
-    accum.rgb += (1.0 - accum.a) * color * alpha;
-    accum.a += (1.0 - accum.a) * alpha;
-    t += stepSize;
-  }
-
-  if (accum.a < 0.006) discard;
-  outColor = vec4(accum.rgb, accum.a);
-}`;
-
-function drawFallback(el: HTMLDivElement, volume: VolumeData) {
-  const canvas = document.createElement("canvas");
-  canvas.style.cssText = "display:block;width:100%;height:100%;background:radial-gradient(circle,#07141a,#020405)";
-  el.replaceChildren(canvas);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return () => undefined;
-  const [nx, ny, nz] = volume.size;
-  const draw = () => {
-    const w = Math.max(1, el.clientWidth);
-    const h = Math.max(1, el.clientHeight);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const size = Math.min(w, h);
-    const ox = (w - size) / 2;
-    const oy = (h - size) / 2;
-    const image = ctx.createImageData(Math.floor(size), Math.floor(size));
-    const z = Math.floor(nz * 0.5);
-    for (let py = 0; py < size; py++) {
-      for (let px = 0; px < size; px++) {
-        const x = Math.round((px / Math.max(1, size - 1)) * (nx - 1));
-        const y = Math.round((1 - py / Math.max(1, size - 1)) * (ny - 1));
-        const q = volume.data[x + nx * (y + ny * z)] / 255;
-        const tissue = Math.max(0, Math.min(1, (q - 0.02) / 0.18));
-        const p = (py * Math.floor(size) + px) * 4;
-        const g = Math.round(Math.pow(q, 0.48) * 245);
-        image.data[p] = Math.round(g * 0.55);
-        image.data[p + 1] = g;
-        image.data[p + 2] = Math.min(255, g + 20);
-        image.data[p + 3] = tissue > 0.01 ? 245 : 0;
-      }
-    }
-    ctx.clearRect(0, 0, w, h);
-    ctx.putImageData(image, ox, oy);
-  };
-  const observer = new ResizeObserver(draw);
-  observer.observe(el);
-  draw();
-  return () => observer.disconnect();
-}
-
-export function VolumeBrain({
-  volume,
-  mask,
-  mode = "ANATOMY",
-}: {
-  volume?: VolumeData;
-  mask?: VolumeData;
-  mode?: VolumeOverlay;
-}) {
+export function VolumeBrain({ volume, mask, mode = "ANATOMY" }: Props) {
   const host = useRef<HTMLDivElement>(null);
+  const [slice, setSlice] = useState(64);
+  const [sliceMode, setSliceMode] = useState(false);
+  const normalized = useMemo(() => (volume ? normalize(volume.data) : null), [volume]);
+
+  useEffect(() => {
+    if (volume) setSlice(Math.floor((volume.size[2] - 1) / 2));
+  }, [volume]);
 
   useEffect(() => {
     const el = host.current;
-    if (!el) return;
-
-    const data = volume;
-    if (!data || data.data.length === 0) return;
+    if (!el || !volume || !normalized) return;
 
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: "high-performance",
-      });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     } catch {
-      return drawFallback(el, data);
+      return;
     }
-
-    if (!renderer.capabilities.isWebGL2) {
-      renderer.dispose();
-      return drawFallback(el, data);
-    }
-
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(0x020405, 0);
+    renderer.setClearColor(0x010405, 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.style.cssText = "display:block;width:100%;height:100%;touch-action:none;cursor:grab";
     el.replaceChildren(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 20);
-    const distance = { value: 2.15 };
-    let yaw = 0.35;
-    let pitch = -0.10;
+    const camera = new THREE.PerspectiveCamera(28, 1, 0.01, 20);
+    const target = new THREE.Vector3(0, 0, 0);
+    let yaw = 0.28;
+    let pitch = -0.05;
+    let zoom = 2.25;
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
@@ -248,55 +166,50 @@ export function VolumeBrain({
 
     const updateCamera = () => {
       const cp = Math.cos(pitch);
-      camera.position.set(
-        Math.sin(yaw) * cp * distance.value,
-        Math.sin(pitch) * distance.value,
-        Math.cos(yaw) * cp * distance.value,
-      );
-      camera.lookAt(0, 0, 0);
-      camera.updateMatrixWorld();
+      camera.position.set(Math.sin(yaw) * cp * zoom, Math.sin(pitch) * zoom, Math.cos(yaw) * cp * zoom);
+      camera.lookAt(target);
     };
     updateCamera();
 
-    const volumeTexture = makeTexture(data);
-    const maskData = mask && mask.size.join("x") === data.size.join("x") ? mask : { data: makeEmptyMask(data.size), size: data.size };
-    const maskTexture = makeTexture(maskData);
+    const [nx, ny, nz] = volume.size;
+    const step = nz > 96 ? 2 : 1;
+    const planes: { mesh: THREE.Mesh; texture: THREE.CanvasTexture; z: number }[] = [];
+    const planeGeo = new THREE.PlaneGeometry(0.94, 0.94);
+    const maskMatches = mask && mask.size.join("x") === volume.size.join("x") ? mask.data : undefined;
 
-    const material = new THREE.RawShaderMaterial({
-      glslVersion: THREE.GLSL3,
-      vertexShader: VERTEX,
-      fragmentShader: FRAGMENT,
-      uniforms: {
-        uVolume: { value: volumeTexture },
-        uMask: { value: maskTexture },
-        uHasMask: { value: mask ? 1 : 0 },
-        uMode: { value: mode === "HEATMAP" ? 1 : mode === "TUMOR" ? 2 : 0 },
-        uThreshold: { value: 0.62 },
-        uOpacity: { value: 1.0 },
-        uCamera: { value: camera.position.clone() },
-      },
-      transparent: true,
-      side: THREE.BackSide,
-      depthWrite: false,
-      depthTest: true,
-      blending: THREE.NormalBlending,
-    });
+    for (let z = 0; z < nz; z += step) {
+      const texture = makeSliceTexture(normalized, maskMatches, volume.size, z, mode);
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        depthTest: true,
+        side: THREE.DoubleSide,
+        opacity: 0.70,
+        blending: THREE.NormalBlending,
+      });
+      const mesh = new THREE.Mesh(planeGeo, material);
+      mesh.position.z = ((z / Math.max(1, nz - 1)) - 0.5) * 0.78;
+      mesh.userData.sliceIndex = z;
+      scene.add(mesh);
+      planes.push({ mesh, texture, z });
+    }
 
-    const brain = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.92, 0.92), material);
-    scene.add(brain);
-
-    const frame = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.94, 0.94, 0.94)),
-      new THREE.LineBasicMaterial({ color: 0x6be7f7, transparent: true, opacity: 0.13 }),
-    );
-    scene.add(frame);
-
-    const grid = new THREE.GridHelper(1.65, 18, 0x17444d, 0x0a2228);
-    grid.position.y = -0.57;
-    const gridMaterial = grid.material as THREE.Material;
-    gridMaterial.transparent = true;
-    gridMaterial.opacity = 0.20;
+    // Give the stack a subtle spatial scaffold like a research workstation viewport.
+    const outline = makeOutline();
+    scene.add(outline);
+    const grid = new THREE.GridHelper(1.6, 16, 0x1b5660, 0x0b282d);
+    grid.position.y = -0.58;
+    const gridMat = grid.material as THREE.Material;
+    gridMat.transparent = true;
+    gridMat.opacity = 0.22;
     scene.add(grid);
+
+    const slicePlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.97, 0.97),
+      new THREE.MeshBasicMaterial({ color: 0x57e9ff, transparent: true, opacity: 0.055, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    scene.add(slicePlane);
 
     const resize = () => {
       const w = Math.max(1, el.clientWidth);
@@ -305,36 +218,26 @@ export function VolumeBrain({
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(el);
+    const ro = new ResizeObserver(resize);
+    ro.observe(el);
     resize();
 
-    const down = (event: PointerEvent) => {
-      dragging = true;
-      lastX = event.clientX;
-      lastY = event.clientY;
-      renderer.domElement.style.cursor = "grabbing";
-      renderer.domElement.setPointerCapture?.(event.pointerId);
-    };
-    const up = () => {
-      dragging = false;
-      renderer.domElement.style.cursor = "grab";
-    };
-    const move = (event: PointerEvent) => {
+    const down = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.style.cursor = "grabbing"; };
+    const up = () => { dragging = false; renderer.domElement.style.cursor = "grab"; };
+    const move = (e: PointerEvent) => {
       if (!dragging) return;
-      yaw += (event.clientX - lastX) * 0.006;
-      pitch += (event.clientY - lastY) * 0.0045;
-      pitch = Math.max(-1.12, Math.min(1.12, pitch));
+      yaw += (e.clientX - lastX) * 0.006;
+      pitch += (e.clientY - lastY) * 0.004;
+      pitch = Math.max(-1.05, Math.min(1.05, pitch));
       updateCamera();
-      lastX = event.clientX;
-      lastY = event.clientY;
+      lastX = e.clientX;
+      lastY = e.clientY;
     };
-    const wheel = (event: WheelEvent) => {
-      event.preventDefault();
-      distance.value = Math.max(1.35, Math.min(3.6, distance.value + event.deltaY * 0.0022));
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      zoom = Math.max(1.35, Math.min(3.5, zoom + e.deltaY * 0.002));
       updateCamera();
     };
-
     renderer.domElement.addEventListener("pointerdown", down);
     renderer.domElement.addEventListener("pointerup", up);
     renderer.domElement.addEventListener("pointercancel", up);
@@ -342,16 +245,25 @@ export function VolumeBrain({
     renderer.domElement.addEventListener("pointerleave", up);
     renderer.domElement.addEventListener("wheel", wheel, { passive: false });
 
-    const clock = new THREE.Clock();
     const animate = () => {
       if (!alive) return;
-      const dt = clock.getDelta();
-      if (!dragging) {
-        yaw += dt * 0.035;
-        updateCamera();
+      if (!dragging) yaw += 0.0009;
+      updateCamera();
+      const maxSlice = nz - 1;
+      for (const item of planes) {
+        const distance = Math.abs(item.z - slice);
+        const selected = distance < Math.max(1, step * 1.2);
+        const mat = item.mesh.material as THREE.MeshBasicMaterial;
+        if (sliceMode) {
+          item.mesh.visible = selected;
+          mat.opacity = selected ? 1 : 0;
+        } else {
+          item.mesh.visible = true;
+          mat.opacity = selected ? 0.98 : 0.58;
+        }
       }
-      material.uniforms.uCamera.value.copy(camera.position);
-      material.uniforms.uOpacity.value = 0.98 + Math.sin(clock.elapsedTime * 1.2) * 0.025;
+      slicePlane.position.z = ((slice / Math.max(1, maxSlice)) - 0.5) * 0.78;
+      slicePlane.visible = sliceMode;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
     };
@@ -360,25 +272,73 @@ export function VolumeBrain({
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
+      ro.disconnect();
       renderer.domElement.removeEventListener("pointerdown", down);
       renderer.domElement.removeEventListener("pointerup", up);
       renderer.domElement.removeEventListener("pointercancel", up);
       renderer.domElement.removeEventListener("pointermove", move);
       renderer.domElement.removeEventListener("pointerleave", up);
       renderer.domElement.removeEventListener("wheel", wheel);
-      volumeTexture.dispose();
-      maskTexture.dispose();
-      material.dispose();
-      brain.geometry.dispose();
-      frame.geometry.dispose();
-      (frame.material as THREE.Material).dispose();
+      for (const item of planes) {
+        item.texture.dispose();
+        (item.mesh.material as THREE.Material).dispose();
+      }
+      planeGeo.dispose();
+      (slicePlane.geometry as THREE.BufferGeometry).dispose();
+      (slicePlane.material as THREE.Material).dispose();
+      outline.traverse(o => {
+        const m = o as THREE.LineSegments;
+        if (m.geometry) m.geometry.dispose();
+        if (m.material) (m.material as THREE.Material).dispose();
+      });
       grid.geometry.dispose();
-      gridMaterial.dispose();
+      gridMat.dispose();
       renderer.dispose();
       el.replaceChildren();
     };
-  }, [volume, mask, mode]);
+  }, [volume, normalized, mask, mode, slice, sliceMode]);
 
-  return <div ref={host} className="absolute inset-0 min-h-0 min-w-0 overflow-hidden" aria-label="Interactive 3D neuroimaging volume" />;
+  const maxSlice = Math.max(1, (volume?.size[2] ?? 128) - 1);
+  const slicePercent = Math.round((slice / maxSlice) * 100);
+
+  return (
+    <div ref={host} className="absolute inset-0 min-h-0 min-w-0 overflow-hidden">
+      {volume && (
+        <>
+          <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-md border border-cyan-200/10 bg-black/40 px-3 py-2 backdrop-blur-sm">
+            <div className="font-mono text-[7px] tracking-[.22em] text-cyan-100/55">3D VOLUME / {mode}</div>
+            <div className="mt-1 font-mono text-[6px] tracking-[.15em] text-white/25">{volume.size.join(" × ")} VOXELS · SLICE {slice + 1}/{maxSlice + 1}</div>
+          </div>
+          <div className="absolute bottom-3 left-1/2 z-20 w-[min(78%,560px)] -translate-x-1/2 rounded-xl border border-cyan-200/15 bg-[#020608]/88 px-4 py-3 shadow-2xl backdrop-blur-md">
+            <div className="mb-2 flex items-center justify-between gap-3 font-mono text-[6px] tracking-[.18em] text-white/35">
+              <span>SLICE NAVIGATION · AXIAL</span>
+              <span className="text-cyan-100/70">Z {slice + 1} / {maxSlice + 1} · {slicePercent}%</span>
+            </div>
+            <input
+              aria-label="MRI slice position"
+              type="range"
+              min={0}
+              max={maxSlice}
+              value={slice}
+              onChange={e => setSlice(Number(e.target.value))}
+              className="w-full accent-cyan-300"
+            />
+            <div className="mt-2 flex items-center justify-between">
+              <span className="font-mono text-[6px] text-white/25">INFERIOR</span>
+              <button
+                onClick={() => setSliceMode(v => !v)}
+                className="rounded-md border border-white/10 px-2.5 py-1 font-mono text-[6px] tracking-[.14em] text-white/55 transition hover:border-cyan-200/30 hover:text-cyan-100"
+              >
+                {sliceMode ? "FULL VOLUME" : "ISOLATE SLICE"}
+              </button>
+              <span className="font-mono text-[6px] text-white/25">SUPERIOR</span>
+            </div>
+          </div>
+          <div className="pointer-events-none absolute bottom-4 left-4 z-10 rounded-md border border-white/10 bg-black/35 px-2.5 py-1.5 font-mono text-[6px] tracking-[.14em] text-white/30 backdrop-blur-sm">
+            DRAG TO ROTATE · SCROLL TO ZOOM
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
