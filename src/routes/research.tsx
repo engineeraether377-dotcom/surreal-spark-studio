@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { NimbleResearchLab } from "@/components/NimbleResearchLab";
+import { NimbleResearchLabV2 } from "@/components/NimbleResearchLabV2";
 
 export const Route = createFileRoute("/research")({
   head: () => ({
@@ -22,5 +22,5 @@ function Research() {
   }, [navigate]);
 
   if (!ready) return <div className="min-h-screen bg-[#020405]" />;
-  return <NimbleResearchLab />;
+  return <NimbleResearchLabV2 />;
 }
